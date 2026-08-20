@@ -1,9 +1,9 @@
-const whiteList = ["http://localhost:8080"]
+const whiteList = ["http://localhost:3000"]
 
 const corsOptions = (req,cb) => {
     let origin = req.headers.origin;
     if(!origin || whiteList.includes(origin)){
-        cb(null,true);
+        cb(null,{ origin: true, credentials: true });
     }else{
         cb(new Error("CORS hatası"));
     }

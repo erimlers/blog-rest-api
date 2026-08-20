@@ -85,14 +85,30 @@ const login = async(req,res) =>{
 
     const token = createToken(user,"7d");
 
+    res.cookie("accessToken", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     return new Response({
-        user: { id: user._id, name: user.name, email: user.email },
-        token: token
+        user: { id: user._id, name: user.name, email: user.email }
     }, "Giriş başarılı.").success(res);
+}
+
+const logout = async(req,res) => {
+    res.clearCookie("accessToken", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+    });
+    return new Response(null, "Çıkış başarılı.").success(res);
 }
 
 module.exports = {
     register,
     verifyMail,
-    login
+    login,
+    logout
 }

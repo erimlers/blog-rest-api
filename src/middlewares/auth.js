@@ -11,12 +11,19 @@ const createToken = (user,expire_in) =>{
 }
 
 const tokenCheck = (req,res,next) =>{
-    const authHeader = req.headers.authorization;
-    if(!authHeader){
-        throw new APIError("Lütfen giriş yapınız. Token eksik.",401);
+    // Önce httpOnly cookie'den oku, bulamazsa Authorization header'dan (fallback)
+    let token = req.cookies?.accessToken;
+
+    if (!token) {
+        const authHeader = req.headers.authorization;
+        if (authHeader) {
+            token = authHeader.startsWith("Bearer ") ? authHeader.split(" ")[1] : authHeader;
+        }
     }
 
-    const token = authHeader.startsWith("Bearer ") ? authHeader.split(" ")[1] : authHeader;
+    if(!token){
+        throw new APIError("Lütfen giriş yapınız. Token eksik.",401);
+    }
 
     try {
         const decoded = jwt.verify(token,process.env.JWT_SECRET_KEY);

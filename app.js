@@ -4,6 +4,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
+const cookieParser = require('cookie-parser');
 const path = require('path');
 const router = require('./src/routers');
 const errorHandlerMiddleware = require('./src/middlewares/errorHandler');
@@ -20,6 +21,7 @@ const apiLimiter = rateLimit({
 });
 app.use('/api', apiLimiter);
 
+app.use(cookieParser());
 app.use(express.json());
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
