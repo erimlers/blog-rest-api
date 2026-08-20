@@ -20,7 +20,7 @@ const register = async(req,res) =>{
     const newUser = new User({
         username,
         name,
-        lastname,
+        lastname:lastname ? lastname : null,
         email,
         password:hashedPassword
     });
