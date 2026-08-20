@@ -1,47 +1,59 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-inter);
-  --font-mono: var(--font-jetbrains);
-  
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-border: var(--border);
+    --font-sans: var(--font-inter);
+    --font-mono: var(--font-jetbrains);
+
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-border: var(--border);
 }
 
 @layer base {
-  /* LIGHT MODE (Gündüz Modu) - Temiz, ferah, minimalist */
-  :root {
-    --background: #ffffff;
-    --foreground: #0f172a; /* slate-900 */
-    --primary: #2563eb; /* blue-600 */
-    --primary-foreground: #ffffff;
-    --muted: #f1f5f9; /* slate-100 */
-    --muted-foreground: #64748b; /* slate-500 */
-    --border: #e2e8f0; /* slate-200 */
-  }
 
-  /* DARK MODE (Gece Modu) - Göz yormayan, developer-friendly lacivert/gri tonları */
-  .dark {
-    --background: #020617; /* slate-950 (Daha koyu siyahımsı lacivert) */
-    --foreground: #f8fafc; /* slate-50 */
-    --primary: #3b82f6; /* blue-500 */
-    --primary-foreground: #ffffff;
-    --muted: #0f172a; /* slate-900 (Background'dan bir ton açık) */
-    --muted-foreground: #94a3b8; /* slate-400 */
-    --border: #1e293b; /* slate-800 */
-  }
+    /* LIGHT MODE (Gündüz Modu) - Temiz, ferah, minimalist */
+    :root {
+        --background: #ffffff;
+        --foreground: #0f172a;
+        /* slate-900 */
+        --primary: #2563eb;
+        /* blue-600 */
+        --primary-foreground: #ffffff;
+        --muted: #f1f5f9;
+        /* slate-100 */
+        --muted-foreground: #64748b;
+        /* slate-500 */
+        --border: #e2e8f0;
+        /* slate-200 */
+    }
+
+    /* DARK MODE (Gece Modu) - Göz yormayan, developer-friendly lacivert/gri tonları */
+    .dark {
+        --background: #020617;
+        /* slate-950 (Daha koyu siyahımsı lacivert) */
+        --foreground: #f8fafc;
+        /* slate-50 */
+        --primary: #3b82f6;
+        /* blue-500 */
+        --primary-foreground: #ffffff;
+        --muted: #0f172a;
+        /* slate-900 (Background'dan bir ton açık) */
+        --muted-foreground: #94a3b8;
+        /* slate-400 */
+        --border: #1e293b;
+        /* slate-800 */
+    }
 }
 
 @layer base {
-  body {
-    background-color: var(--background);
-    color: var(--foreground);
-    /* Yumuşak tema geçişi için transition */
-    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
-  }
+    body {
+        background-color: var(--background);
+        color: var(--foreground);
+        /* Yumuşak tema geçişi için transition */
+        transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+    }
 }
