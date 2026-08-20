@@ -2,6 +2,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import ReduxProvider from "../../store/provider";
 import Navbar from "@components/layout/Navbar";
+import Footer from "@components/layout/Footer";
 import { ThemeProvider } from "@components/theme-provider";
 
 // Ana font (Okunabilirlik için Inter)
@@ -41,7 +42,7 @@ export default function RootLayout({ children }) {
               {children}
             </main>
             
-            {/* <Footer /> buraya gelecek */}
+            <Footer />
           </ReduxProvider>
         </ThemeProvider>
       </body>

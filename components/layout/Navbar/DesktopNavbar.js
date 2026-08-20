@@ -16,19 +16,19 @@ export default function DesktopNavbar() {
 
         {/* Orta Alan: Navigasyon Linkleri */}
         <div className="flex-1 flex items-center justify-center gap-8">
-          <button className="text-sm font-medium text-muted-foreground hover:text-primary transition-all duration-300 ease-in-out">Anasayfa</button>
-          <button className="text-sm font-medium text-muted-foreground hover:text-primary transition-all duration-300 ease-in-out">Yazılar</button>
-          <button className="text-sm font-medium text-muted-foreground hover:text-primary transition-all duration-300 ease-in-out">Hakkımızda</button>
+          <button className="text-sm font-medium text-muted-foreground hover:text-primary transition-all duration-300 ease-in-out cursor-pointer">Anasayfa</button>
+          <button className="text-sm font-medium text-muted-foreground hover:text-primary transition-all duration-300 ease-in-out cursor-pointer">Yazılar</button>
+          <button className="text-sm font-medium text-muted-foreground hover:text-primary transition-all duration-300 ease-in-out cursor-pointer">Hakkımızda</button>
         </div>
 
         {/* Sağ Alan: Araçlar & Auth */}
         <div className="flex-1 flex items-center justify-end gap-4">
           <ThemeToggle />
           <div className="w-px h-6 bg-border mx-2"></div>
-          <button className="px-4 py-2 text-sm font-medium text-foreground hover:text-primary transition-all duration-300 ease-in-out">
+          <button className="px-4 py-2 text-sm font-medium text-foreground hover:text-primary transition-all duration-300 ease-in-out cursor-pointer">
             Kayıt Ol
           </button>
-          <button className="px-5 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 ease-in-out">
+          <button className="px-5 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 ease-in-out cursor-pointer">
             Giriş Yap
           </button>
         </div>
