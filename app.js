@@ -10,7 +10,9 @@ const router = require('./src/routers');
 const errorHandlerMiddleware = require('./src/middlewares/errorHandler');
 const corsOptions = require("./src/config/corsOptions");
 
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: false,
+}));
 app.use(cors(corsOptions)); 
 app.use(compression());
 
