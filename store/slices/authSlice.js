@@ -61,6 +61,7 @@ export const checkAuth = createAsyncThunk(
 const initialState = {
   user: null,
   isAuthenticated: false,
+  isAuthChecked: false, // Uygulama ilk açıldığında oturum kontrolü yapıldı mı?
   isLoading: false,
   error: null,
 };
@@ -69,7 +70,6 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    // İhtiyaç halinde component'lerden error'u temizlemek için senkron aksiyon
     clearError: (state) => {
       state.error = null;
     }
@@ -84,7 +84,7 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isAuthenticated = true;
-        state.user = action.payload; // Backend'den gelen temiz user objesi
+        state.user = action.payload;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
@@ -98,8 +98,6 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.fulfilled, (state) => {
         state.isLoading = false;
-        // Kullanıcı kayıt olduktan sonra giriş yapmış sayılmaz (e-posta onayı beklendiği için).
-        // Yönlendirmeyi UI (page.js) tarafında yapacağız.
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.isLoading = false;
@@ -113,24 +111,24 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(logoutUser.rejected, (state) => {
-        // Çıkışta ağ hatası olsa bile güvenlik için client state'i temizlemek iyi bir pratiktir
         state.user = null;
         state.isAuthenticated = false;
       })
 
       // --- CHECK AUTH ---
       .addCase(checkAuth.pending, (state) => {
-        state.isLoading = true;
+        // İlk yüklemede tüm uygulamanın isLoading durumuna geçmemesi için burada isLoading'i true yapmıyoruz.
+        // Sadece isAuthChecked = false olması yeterli.
       })
       .addCase(checkAuth.fulfilled, (state, action) => {
-        state.isLoading = false;
         state.isAuthenticated = true;
         state.user = action.payload;
+        state.isAuthChecked = true;
       })
       .addCase(checkAuth.rejected, (state) => {
-        state.isLoading = false;
         state.isAuthenticated = false;
         state.user = null;
+        state.isAuthChecked = true;
       });
   },
 });
