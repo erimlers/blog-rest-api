@@ -49,7 +49,8 @@ export const checkAuth = createAsyncThunk(
     try {
       // Tarayıcıdaki httpOnly cookie geçerliyse, kullanıcı bilgilerini getirir.
       const response = await api.get(ENDPOINTS.PROFILE.GET);
-      return response.data?.user || response.user;
+      // Profil isteğinden doğrudan kullanıcı objesi ({_id, name, email, ...}) "data" içinde döner
+      return response.data?.user || response.data || response;
     } catch (error) {
       return rejectWithValue("Oturum süresi dolmuş veya geçersiz.");
     }

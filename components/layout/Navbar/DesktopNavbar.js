@@ -8,7 +8,7 @@ import { User, LogOut, ChevronDown } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
 export default function DesktopNavbar() {
-  const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const { isAuthenticated, user, isAuthChecked } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -54,7 +54,13 @@ export default function DesktopNavbar() {
           <ThemeToggle />
           <div className="w-px h-6 bg-border mx-2"></div>
           
-          {isAuthenticated ? (
+          {/* Kullanıcı Girişi / Profil */}
+          {!isAuthChecked ? (
+            <div className="flex gap-2">
+              <div className="w-20 h-9 bg-muted rounded-lg animate-pulse"></div>
+              <div className="w-20 h-9 bg-muted rounded-lg animate-pulse"></div>
+            </div>
+          ) : isAuthenticated ? (
             <div className="relative" ref={dropdownRef}>
               <button 
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -92,7 +98,7 @@ export default function DesktopNavbar() {
               <Link href="/auth/register" className="px-4 py-2 text-sm font-medium text-foreground hover:text-primary transition-all duration-300 ease-in-out cursor-pointer">
                 Kayıt Ol
               </Link>
-              <Link href="/auth/login" className="px-5 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 ease-in-out cursor-pointer">
+              <Link href="/auth/login" className="px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 ease-in-out cursor-pointer">
                 Giriş Yap
               </Link>
             </>

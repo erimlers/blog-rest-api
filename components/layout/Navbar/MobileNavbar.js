@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 
 export default function MobileNavbar() {
-  const { isAuthenticated, user } = useSelector((state) => state.auth);
+  const { isAuthenticated, user, isAuthChecked } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -66,47 +66,63 @@ export default function MobileNavbar() {
 
             <div className="w-full h-px bg-border mb-8"></div>
 
-            {/* Auth Alanı */}
-            <div className="flex flex-col gap-4">
-              {isAuthenticated ? (
-                <>
-                  <div className="flex items-center justify-center gap-3 text-lg font-medium text-foreground mb-4">
-                    <User className="w-5 h-5 text-primary" />
-                    <span>Hesabım</span>
+            {/* Auth Bölümü */}
+            <div className="pt-6">
+              {!isAuthChecked ? (
+                <div className="w-full flex flex-col gap-3">
+                  <div className="w-full h-11 bg-muted rounded-xl animate-pulse"></div>
+                  <div className="w-full h-11 bg-muted rounded-xl animate-pulse"></div>
+                </div>
+              ) : isAuthenticated ? (
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-3 px-4 py-3 bg-muted/50 rounded-xl">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <User className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Hesabım</p>
+                      <p className="text-xs text-muted-foreground">Aktif Oturum</p>
+                    </div>
                   </div>
-                  <Link 
-                    href="/profile" 
-                    onClick={() => setIsMenuOpen(false)}
-                    className="w-full py-3 px-4 flex items-center justify-center gap-2 bg-muted text-foreground rounded-xl font-medium"
-                  >
-                    <User className="w-5 h-5" />
-                    <span>Profilim</span>
-                  </Link>
-                  <button 
-                    onClick={handleLogout}
-                    className="w-full py-3 px-4 flex items-center justify-center gap-2 bg-red-500/10 text-red-500 rounded-xl font-medium"
-                  >
-                    <LogOut className="w-5 h-5" />
-                    <span>Çıkış Yap</span>
-                  </button>
-                </>
+                  
+                  <div className="flex flex-col gap-2">
+                    <Link 
+                      href="/profile" 
+                      onClick={() => setIsMenuOpen(false)}
+                      className="flex items-center justify-center gap-2 w-full px-4 py-3 text-sm font-medium text-foreground bg-muted hover:bg-muted/80 rounded-xl transition-colors"
+                    >
+                      <User className="w-4 h-4" />
+                      Profilim
+                    </Link>
+                    <button 
+                      onClick={() => {
+                        handleLogout();
+                        setIsMenuOpen(false);
+                      }}
+                      className="flex items-center justify-center gap-2 w-full px-4 py-3 text-sm font-medium text-red-500 bg-red-500/10 hover:bg-red-500/20 rounded-xl transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Çıkış Yap
+                    </button>
+                  </div>
+                </div>
               ) : (
-                <>
+                <div className="flex flex-col gap-3">
                   <Link 
                     href="/auth/login" 
                     onClick={() => setIsMenuOpen(false)}
-                    className="w-full py-3 flex items-center justify-center bg-primary text-primary-foreground rounded-xl font-medium"
+                    className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium bg-primary text-primary-foreground rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-colors"
                   >
                     Giriş Yap
                   </Link>
                   <Link 
                     href="/auth/register" 
                     onClick={() => setIsMenuOpen(false)}
-                    className="w-full py-3 flex items-center justify-center border border-border text-foreground rounded-xl font-medium"
+                    className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-foreground bg-muted hover:bg-muted/80 rounded-xl transition-colors"
                   >
                     Kayıt Ol
                   </Link>
-                </>
+                </div>
               )}
             </div>
 
