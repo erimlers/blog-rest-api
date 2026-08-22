@@ -3,7 +3,6 @@ const app = express();
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
-const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
 const path = require('path');
 const router = require('./src/routers');
@@ -15,13 +14,6 @@ app.use(helmet({
 }));
 app.use(cors(corsOptions)); 
 app.use(compression());
-
-const apiLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, 
-    max: 100, 
-    message: 'Bu IP adresinden çok fazla istek yapıldı, lütfen daha sonra tekrar deneyin.'
-});
-app.use('/api', apiLimiter);
 
 app.use(cookieParser());
 app.use(express.json());
