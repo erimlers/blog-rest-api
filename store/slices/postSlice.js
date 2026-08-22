@@ -2,6 +2,18 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "@lib/api";
 import ENDPOINTS from "@lib/endpoints";
 
+// Recursive olarak iç içe yorumları bulma yardımcı fonksiyonu
+const findComment = (comments, id) => {
+  for (let c of comments) {
+    if (c._id === id) return c;
+    if (c.replies && c.replies.length > 0) {
+      const found = findComment(c.replies, id);
+      if (found) return found;
+    }
+  }
+  return null;
+};
+
 // ─── Thunks ─────────────────────────────────────────────────────────────
 
 // Tüm postları (veya filtrelenmiş postları) getir
@@ -87,9 +99,9 @@ export const fetchComments = createAsyncThunk(
 // Yeni yorum ekle
 export const createComment = createAsyncThunk(
   "posts/createComment",
-  async ({ postId, content }, { rejectWithValue }) => {
+  async ({ postId, content, parentComment }, { rejectWithValue }) => {
     try {
-      const response = await api.post(ENDPOINTS.COMMENTS.CREATE(postId), { content });
+      const response = await api.post(ENDPOINTS.COMMENTS.CREATE(postId), { content, parentComment });
       return response.data || response;
     } catch (error) {
       return rejectWithValue(error.message || "Yorum eklenemedi.");
@@ -110,13 +122,13 @@ export const updateComment = createAsyncThunk(
   }
 );
 
-// Yorum sil
+// Yorum sil (Soft Delete)
 export const deleteComment = createAsyncThunk(
   "posts/deleteComment",
   async ({ postId, commentId }, { rejectWithValue }) => {
     try {
-      await api.delete(ENDPOINTS.COMMENTS.DELETE(postId, commentId));
-      return commentId; // Silinen yorumun id'sini dön
+      const response = await api.delete(ENDPOINTS.COMMENTS.DELETE(postId, commentId));
+      return response.data || response; // Soft delete edilmiş yorumu dön
     } catch (error) {
       return rejectWithValue(error.message || "Yorum silinemedi.");
     }
@@ -225,23 +237,46 @@ const postSlice = createSlice({
 
       // --- createComment ---
       .addCase(createComment.fulfilled, (state, action) => {
-        // Yeni eklenen yorumu listeye ekle
-        state.comments.unshift(action.payload); // Yeni yorumlar genelde en üste eklenir (veya push)
+        const newComment = action.payload;
+        if (!newComment.replies) newComment.replies = [];
+        
+        if (newComment.parentComment) {
+          // Alt yorumsa, parent'ı bulup replies'e ekle
+          const parent = findComment(state.comments, newComment.parentComment);
+          if (parent) {
+             if (!parent.replies) parent.replies = [];
+             parent.replies.push(newComment); // sona ekle (en altta çıksın)
+          } else {
+             state.comments.unshift(newComment);
+          }
+        } else {
+          // Ana yorumsa
+          state.comments.unshift(newComment);
+        }
       })
 
       // --- updateComment ---
       .addCase(updateComment.fulfilled, (state, action) => {
         const updatedComment = action.payload;
-        const index = state.comments.findIndex(c => c._id === updatedComment._id);
-        if (index !== -1) {
-          state.comments[index] = updatedComment;
+        const target = findComment(state.comments, updatedComment._id);
+        if (target) {
+          target.content = updatedComment.content;
+          target.isEdited = true; // varsa
         }
       })
 
       // --- deleteComment ---
       .addCase(deleteComment.fulfilled, (state, action) => {
-        const deletedCommentId = action.payload;
-        state.comments = state.comments.filter(c => c._id !== deletedCommentId);
+        const softDeletedComment = action.payload;
+        // Eğer payload bir obje ise (Yani API'den silinmiş yorum döndüyse)
+        if (softDeletedComment && softDeletedComment._id) {
+            const target = findComment(state.comments, softDeletedComment._id);
+            if (target) {
+               target.isDeleted = true;
+               target.content = "[Bu yorum silinmiştir]";
+               // target.author = null; // Alt yorumlarda "@kullanıcıAdı" etiketinin kaybolmaması için yazarı Redux'ta da silmiyoruz
+            }
+        }
       });
   }
 });
