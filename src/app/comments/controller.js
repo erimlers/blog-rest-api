@@ -49,7 +49,7 @@ const getCommentsByPost = async(req,res) => {
     comments = comments.map(comment => {
         if (comment.isDeleted) {
             comment.content = "[Bu yorum silinmiştir]";
-            // comment.author = null; // Alt yorumlarda "@kullanıcıAdı" etiketinin kaybolmaması için yazarı silmiyoruz (Frontend zaten ismini gizliyor)
+            // comment.author = null; // Alt yorumlarda "@kullanıcıAdı" etiketinin kaybolmaması için yazarı silmiyoruz
         }
         return comment;
     });
@@ -108,12 +108,42 @@ const deleteComment = async(req, res) => {
         throw new APIError("Bu yorumu silme yetkiniz yok.", 403);
     }
 
-    // Soft delete işlemi
-    comment.isDeleted = true;
-    comment.content = "[silinmiş]"; // Mongoose required hatası vermesin diye boş string yerine placeholder koyuyoruz
-    await comment.save();
+    let isHardDeleted = true;
 
-    return new Response(comment, "Yorum başarıyla silindi.").success(res);
+    if (!comment.parentComment) {
+        // 1. Ana (Root) Yorum Siliniyorsa: Cascade Delete (Tüm Yanıtları Sil)
+        const allComments = await Comment.find({ post: comment.post });
+        let descendantIds = [];
+        
+        const findDescendants = (parentId) => {
+            const children = allComments.filter(c => c.parentComment?.toString() === parentId.toString());
+            children.forEach(child => {
+                descendantIds.push(child._id);
+                findDescendants(child._id);
+            });
+        };
+        
+        findDescendants(comment._id);
+        await Comment.deleteMany({ _id: { $in: [comment._id, ...descendantIds] } });
+        
+    } else {
+        // 2. Alt Yorum (Yanıt) Siliniyorsa: Çocuk var mı kontrol et
+        const childrenCount = await Comment.countDocuments({ parentComment: comment._id });
+        
+        if (childrenCount > 0) {
+            // Eğer çocukları varsa: Yetim kalmamaları ve etiketlerin bozulmaması için Soft Delete
+            comment.isDeleted = true;
+            comment.content = "[silinmiş]";
+            await comment.save();
+            isHardDeleted = false;
+        } else {
+            // Eğer çocuğu yoksa (yaprak düğümse): Tamamen sil gitsin (Hard Delete)
+            await Comment.findByIdAndDelete(comment._id);
+        }
+    }
+
+    // Frontend'e yorum objesi ile birlikte nasıl silindiği bilgisini de gönderiyoruz
+    return new Response({ ...comment.toObject(), isHardDeleted }, "Yorum başarıyla silindi.").success(res);
 }
 
 module.exports = {
