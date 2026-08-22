@@ -32,7 +32,7 @@ export default function DesktopNavbar() {
   };
 
   return (
-    <nav className="w-full h-16 border-b border-border bg-background/70 backdrop-blur-lg sticky top-0 z-50 transition-all duration-300 ease-in-out">
+    <nav className="w-full h-16 border-b border-border bg-background sticky top-0 z-50 transition-all duration-300 ease-in-out">
       <div className="container mx-auto px-6 h-full flex items-center justify-between">
         
         {/* Sol Alan: Logo */}

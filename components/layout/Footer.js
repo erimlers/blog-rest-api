@@ -2,7 +2,7 @@
 
 export default function Footer() {
   return (
-    <footer className="w-full border-t border-border bg-background/70 backdrop-blur-lg mt-auto">
+    <footer className="w-full border-t border-border bg-background mt-auto">
       <div className="container mx-auto px-4 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
         
         {/* Sol Taraf: Copyright */}

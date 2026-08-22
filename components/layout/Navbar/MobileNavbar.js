@@ -31,7 +31,7 @@ export default function MobileNavbar() {
 
   return (
     <>
-      <nav className="w-full h-16 border-b border-border bg-background/70 backdrop-blur-lg sticky top-0 z-50 transition-all duration-300 ease-in-out">
+      <nav className="w-full h-16 border-b border-border bg-background sticky top-0 z-50 transition-all duration-300 ease-in-out">
         <div className="container mx-auto px-4 h-full flex items-center justify-between">
           
           {/* Sol Alan: Logo */}
@@ -54,7 +54,7 @@ export default function MobileNavbar() {
 
       {/* Mobil Menü Overlay */}
       {isMenuOpen && (
-        <div className="fixed inset-0 z-40 bg-background/95 backdrop-blur-sm pt-16 animate-in slide-in-from-top-full duration-300">
+        <div className="fixed inset-0 z-40 bg-background pt-16 animate-in slide-in-from-top-full duration-300">
           <div className="container mx-auto px-4 py-8 flex flex-col h-full overflow-y-auto">
             
             {/* Navigasyon Linkleri */}

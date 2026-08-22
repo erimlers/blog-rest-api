@@ -16,37 +16,32 @@
 
 @layer base {
 
-    /* LIGHT MODE (Gündüz Modu) - Temiz, ferah, minimalist */
+    /* LIGHT MODE (Gündüz Modu) - Temiz, minimalist, ciddi */
     :root {
         --background: #ffffff;
-        --foreground: #0f172a;
-        /* slate-900 */
-        --primary: #2563eb;
-        /* blue-600 */
-        --primary-foreground: #ffffff;
-        --muted: #f1f5f9;
-        /* slate-100 */
-        --muted-foreground: #64748b;
-        /* slate-500 */
-        --border: #e2e8f0;
-        /* slate-200 */
+        --foreground: #09090b; /* zinc-950 */
+        
+        --primary: #09090b; /* zinc-950 (Siyah Butonlar) */
+        --primary-foreground: #fafafa; /* zinc-50 (Beyaz Yazı) */
+        
+        --muted: #f4f4f5; /* zinc-100 */
+        --muted-foreground: #71717a; /* zinc-500 */
+        
+        --border: #e4e4e7; /* zinc-200 */
     }
 
-    /* DARK MODE (Gece Modu) - Göz yormayan, developer-friendly lacivert/gri tonları */
+    /* DARK MODE (Gece Modu) - Premium Koyu Gri ve Saf Siyah */
     .dark {
-        --background: #020617;
-        /* slate-950 (Daha koyu siyahımsı lacivert) */
-        --foreground: #f8fafc;
-        /* slate-50 */
-        --primary: #3b82f6;
-        /* blue-500 */
-        --primary-foreground: #ffffff;
-        --muted: #0f172a;
-        /* slate-900 (Background'dan bir ton açık) */
-        --muted-foreground: #94a3b8;
-        /* slate-400 */
-        --border: #1e293b;
-        /* slate-800 */
+        --background: #09090b; /* zinc-950 (Koyu Siyah) */
+        --foreground: #fafafa; /* zinc-50 (Beyaz) */
+        
+        --primary: #fafafa; /* zinc-50 (Beyaz Butonlar) */
+        --primary-foreground: #09090b; /* zinc-950 (Siyah Yazı) */
+        
+        --muted: #18181b; /* zinc-900 */
+        --muted-foreground: #a1a1aa; /* zinc-400 */
+        
+        --border: #27272a; /* zinc-800 */
     }
 }
 
