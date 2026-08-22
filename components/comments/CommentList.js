@@ -108,18 +108,18 @@ export default function CommentList({ comments, postId }) {
 
               {/* Yorum İçeriği */}
               <div className="flex-col flex-1 min-w-0">
-                <div className="flex items-center justify-between mb-1 relative">
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold text-foreground text-sm sm:text-base truncate">
+                <div className="flex items-start sm:items-center justify-between mb-1 relative">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+                    <span className="font-semibold text-foreground text-sm sm:text-base truncate leading-tight">
                       {comment.author?.name} {comment.author?.lastname}
                     </span>
-                    <span className="text-xs text-muted-foreground hidden sm:inline-block">
+                    <span className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-0">
                       @{comment.author?.username}
                     </span>
                   </div>
                   
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">{formattedDate}</span>
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <span className="text-[10px] sm:text-xs font-medium text-muted-foreground whitespace-nowrap">{formattedDate}</span>
                     
                     {/* Seçenekler İkonu (Sadece Sahibi İçin) */}
                     {isOwner && !isEditing && (
