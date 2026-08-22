@@ -43,7 +43,16 @@ const getCommentsByPost = async(req,res) => {
         .populate("author","username name lastname")
         .sort({ createdAt: -1 });
         
-    const comments = commentsDocs.map(c => c.toJSON());
+    let comments = commentsDocs.map(c => c.toJSON());
+    
+    // Soft Delete edilmiş yorumları anonimleştir
+    comments = comments.map(comment => {
+        if (comment.isDeleted) {
+            comment.content = "[Bu yorum silinmiştir]";
+            // comment.author = null; // Alt yorumlarda "@kullanıcıAdı" etiketinin kaybolmaması için yazarı silmiyoruz (Frontend zaten ismini gizliyor)
+        }
+        return comment;
+    });
 
     const commentMap = {};
     comments.forEach(comment => {
@@ -99,9 +108,12 @@ const deleteComment = async(req, res) => {
         throw new APIError("Bu yorumu silme yetkiniz yok.", 403);
     }
 
-    await comment.deleteOne();
+    // Soft delete işlemi
+    comment.isDeleted = true;
+    comment.content = "[silinmiş]"; // Mongoose required hatası vermesin diye boş string yerine placeholder koyuyoruz
+    await comment.save();
 
-    return new Response(null, "Yorum başarıyla silindi.").success(res);
+    return new Response(comment, "Yorum başarıyla silindi.").success(res);
 }
 
 module.exports = {
