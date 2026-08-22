@@ -27,6 +27,7 @@ const createComment = async(req,res) => {
     });
 
     await newComment.save();
+    await newComment.populate("author", "username name lastname profileImage");
 
     return new Response(newComment,"Yorum başarıyla oluşturuldu.").created(res);
 }
@@ -68,7 +69,44 @@ const getCommentsByPost = async(req,res) => {
     return new Response(rootComments,"Yorumlar başarıyla getirildi.").success(res);
 }
 
+const updateComment = async(req, res) => {
+    const { commentId } = req.params;
+    const { content } = req.body;
+
+    const comment = await Comment.findById(commentId);
+    if (!comment) throw new APIError("Yorum bulunamadı.", 404);
+
+    if (comment.author.toString() !== req.user._id.toString()) {
+        throw new APIError("Bu yorumu düzenleme yetkiniz yok.", 403);
+    }
+
+    comment.content = content;
+    await comment.save();
+    
+    // Yazar bilgisini döndürürken populate et ki frontend'de hemen isim güncellensin
+    await comment.populate("author", "username name lastname profileImage");
+
+    return new Response(comment, "Yorum başarıyla güncellendi.").success(res);
+}
+
+const deleteComment = async(req, res) => {
+    const { commentId } = req.params;
+
+    const comment = await Comment.findById(commentId);
+    if (!comment) throw new APIError("Yorum bulunamadı.", 404);
+
+    if (comment.author.toString() !== req.user._id.toString()) {
+        throw new APIError("Bu yorumu silme yetkiniz yok.", 403);
+    }
+
+    await comment.deleteOne();
+
+    return new Response(null, "Yorum başarıyla silindi.").success(res);
+}
+
 module.exports = {
     createComment,
-    getCommentsByPost
+    getCommentsByPost,
+    updateComment,
+    deleteComment
 }

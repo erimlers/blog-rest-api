@@ -18,9 +18,9 @@ class postValidation {
                 "string.min":"İçerik en az 10 karakter olmalıdır.",
                 "any.required":"İçerik gereklidir."
             }),
-            tags:joi.array().items(joi.string().trim()).messages({
-                "array.base":"Etiketler bir dizi olmalıdır.",
-                "array.items":"Etiketler bir metin olmalıdır."
+            tags: joi.array().items(joi.string().trim()).single().messages({
+                "array.base": "Etiketler bir dizi olmalıdır.",
+                "array.items": "Etiketler bir metin olmalıdır."
             })  
         }).validateAsync(req.body)
 
@@ -45,9 +45,9 @@ class postValidation {
                 "string.empty":"İçerik boş bırakılamaz.",
                 "string.min":"İçerik en az 10 karakter olmalıdır.",
             }),
-            tags:joi.array().items(joi.string().trim()).messages({
-                "array.base":"Etiketler bir dizi olmalıdır.",
-                "array.items":"Etiketler bir metin olmalıdır."
+            tags: joi.array().items(joi.string().trim()).single().messages({
+                "array.base": "Etiketler bir dizi olmalıdır.",
+                "array.items": "Etiketler bir metin olmalıdır."
             })  
         }).validateAsync(req.body)
     } catch (error) {
