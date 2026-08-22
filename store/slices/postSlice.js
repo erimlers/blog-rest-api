@@ -267,14 +267,36 @@ const postSlice = createSlice({
 
       // --- deleteComment ---
       .addCase(deleteComment.fulfilled, (state, action) => {
-        const softDeletedComment = action.payload;
-        // Eğer payload bir obje ise (Yani API'den silinmiş yorum döndüyse)
-        if (softDeletedComment && softDeletedComment._id) {
-            const target = findComment(state.comments, softDeletedComment._id);
-            if (target) {
-               target.isDeleted = true;
-               target.content = "[Bu yorum silinmiştir]";
-               // target.author = null; // Alt yorumlarda "@kullanıcıAdı" etiketinin kaybolmaması için yazarı Redux'ta da silmiyoruz
+        const deletedComment = action.payload; // Backend'den { ..., isHardDeleted: true/false } döner
+        if (deletedComment && deletedComment._id) {
+            
+            const targetRootIndex = state.comments.findIndex(c => c._id === deletedComment._id);
+            if (targetRootIndex !== -1) {
+                // 1. Ana yorum her zaman cascade ile tamamen silinir
+                state.comments.splice(targetRootIndex, 1);
+            } else {
+                // 2. Alt yorum ise backend'in kararına göre sil
+                const modifyRecursive = (comments) => {
+                    for (let c of comments) {
+                        if (c.replies && c.replies.length > 0) {
+                            const targetIndex = c.replies.findIndex(r => r._id === deletedComment._id);
+                            if (targetIndex !== -1) {
+                                if (deletedComment.isHardDeleted) {
+                                    // Çocukları yok, tamamen silindi
+                                    c.replies.splice(targetIndex, 1);
+                                } else {
+                                    // Çocukları var, Soft Delete yapıldı
+                                    c.replies[targetIndex].isDeleted = true;
+                                    c.replies[targetIndex].content = "[Bu yorum silinmiştir]";
+                                }
+                                return true;
+                            }
+                            if (modifyRecursive(c.replies)) return true;
+                        }
+                    }
+                    return false;
+                };
+                modifyRecursive(state.comments);
             }
         }
       });

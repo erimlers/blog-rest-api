@@ -13,7 +13,8 @@ const flattenReplies = (replies, parentAuthor = null) => {
   if (!replies || !Array.isArray(replies)) return flatList;
 
   replies.forEach(reply => {
-    // Mevcut yanıtı listeye ekle
+    // Tüm yanıtları (Silinenler dahil) listeye ekle. 
+    // Silinen alt yorumların sadece çocukları varsa soft-delete olduğu için, UI'da "Bu yorum silinmiştir" olarak görünecek.
     flatList.push({ ...reply, replyToUser: parentAuthor });
     
     // Eğer bu yanıtın da kendi yanıtları varsa onları da ekle (DFS)
@@ -136,7 +137,7 @@ export default function CommentItem({ comment, postId, isReply = false, replyToU
         {/* Profil Resmi */}
         <div className="flex-shrink-0">
           {comment.isDeleted ? (
-            <div className={`${avatarSize} rounded-full bg-muted flex items-center justify-center text-muted-foreground border border-border`}>
+            <div className={`${avatarSize} rounded-full bg-muted flex items-center justify-center text-muted-foreground border border-border shadow-sm`}>
               <User className={avatarIconSize} />
             </div>
           ) : comment.author?.profileImage ? (
@@ -155,7 +156,6 @@ export default function CommentItem({ comment, postId, isReply = false, replyToU
         {/* Yorum İçeriği */}
         <div className="flex-col flex-1 min-w-0">
           <div className="flex items-start sm:items-center justify-between mb-1 relative">
-            
             {comment.isDeleted ? (
               <span className={`font-semibold text-muted-foreground italic ${nameBase}`}>
                 Bilinmeyen Kullanıcı
