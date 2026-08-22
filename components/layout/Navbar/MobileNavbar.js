@@ -1,7 +1,7 @@
 "use client";
 
 import ThemeToggle from "@components/ui/ThemeToggle";
-import { Menu, X, User, LogOut } from "lucide-react";
+import { Menu, X, User, LogOut, PenSquare } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { logoutUser } from "@store/slices/authSlice";
 import Link from "next/link";
@@ -86,6 +86,14 @@ export default function MobileNavbar() {
                   </div>
                   
                   <div className="flex flex-col gap-2">
+                    <Link 
+                      href="/posts/create" 
+                      onClick={() => setIsMenuOpen(false)}
+                      className="flex items-center justify-center gap-2 w-full px-4 py-3 text-sm font-medium text-foreground bg-primary/10 hover:bg-primary/20 text-primary rounded-xl transition-colors"
+                    >
+                      <PenSquare className="w-4 h-4" />
+                      Yazı Oluştur
+                    </Link>
                     <Link 
                       href="/profile" 
                       onClick={() => setIsMenuOpen(false)}

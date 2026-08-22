@@ -4,6 +4,7 @@ import ReduxProvider from "@store/provider";
 import Navbar from "@components/layout/Navbar";
 import Footer from "@components/layout/Footer";
 import { ThemeProvider } from "@components/theme-provider";
+import FloatingCreateButton from "@components/ui/FloatingCreateButton";
 
 // Ana font (Okunabilirlik için Inter)
 const inter = Inter({
@@ -42,6 +43,7 @@ export default function RootLayout({ children }) {
               {children}
             </main>
             
+            <FloatingCreateButton />
             <Footer />
           </ReduxProvider>
         </ThemeProvider>

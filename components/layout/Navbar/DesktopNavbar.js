@@ -4,7 +4,7 @@ import ThemeToggle from "@components/ui/ThemeToggle";
 import { useSelector, useDispatch } from "react-redux";
 import { logoutUser } from "@store/slices/authSlice";
 import Link from "next/link";
-import { User, LogOut, ChevronDown } from "lucide-react";
+import { User, LogOut, ChevronDown, PenSquare } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
 export default function DesktopNavbar() {
@@ -74,6 +74,14 @@ export default function DesktopNavbar() {
               {/* Dropdown Menu */}
               {isDropdownOpen && (
                 <div className="absolute right-0 mt-3 w-48 bg-background border border-border rounded-xl shadow-lg py-2 z-50 transform origin-top-right transition-all duration-200 ease-out">
+                  <Link 
+                    href="/posts/create" 
+                    onClick={() => setIsDropdownOpen(false)}
+                    className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted hover:text-primary transition-colors cursor-pointer"
+                  >
+                    <PenSquare className="w-4 h-4" />
+                    <span>Yazı Oluştur</span>
+                  </Link>
                   <Link 
                     href="/profile" 
                     onClick={() => setIsDropdownOpen(false)}
