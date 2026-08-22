@@ -79,7 +79,6 @@ export default function CreatePostPage() {
       // Tags state'inden alarak ekliyoruz
       if (tags.length > 0) {
         tags.forEach(tag => {
-          formData.append("tags[]", tag);
           formData.append("tags", tag);
         });
       }

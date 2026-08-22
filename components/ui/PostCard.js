@@ -46,6 +46,11 @@ export default function PostCard({ post }) {
 
       <div className="flex flex-col flex-1 p-5 sm:p-6">
         
+        {/* Tarih (Üst Kısım) */}
+        <span className="text-xs text-muted-foreground font-medium mb-2 inline-block">
+          {formattedDate}
+        </span>
+
         {/* Başlık ve Metin */}
         <div className="flex-1">
           <h2 className="text-xl font-bold text-foreground mb-2 line-clamp-2 group-hover:text-primary transition-colors">
@@ -57,33 +62,30 @@ export default function PostCard({ post }) {
         </div>
 
         {/* Yazar ve Etkileşim (Alt Kısım) */}
-        <div className="flex items-center justify-between pt-4 border-t border-border mt-auto">
+        <div className="flex items-center justify-between pt-5 border-t border-border mt-auto">
           
           {/* Yazar Bilgisi */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
             {post.author?.profileImage ? (
               <img 
                 src={`${apiUrl}${post.author.profileImage}`} 
                 alt={post.author.username} 
-                className="w-8 h-8 rounded-full object-cover border border-border"
+                className="w-9 h-9 rounded-full object-cover border border-border flex-shrink-0"
               />
             ) : (
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold border border-primary/20">
+              <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold border border-primary/20 flex-shrink-0">
                 {authorInitials.toUpperCase()}
               </div>
             )}
-            <div className="flex flex-col">
-              <span className="text-sm font-semibold text-foreground leading-none">
+            <div className="flex flex-col min-w-0 pr-2">
+              <span className="text-sm font-semibold text-foreground leading-tight truncate">
                 {post.author?.name} {post.author?.lastname}
-              </span>
-              <span className="text-xs text-muted-foreground mt-1">
-                {formattedDate}
               </span>
             </div>
           </div>
 
           {/* Etkileşim Butonları */}
-          <div className="flex items-center gap-4 text-muted-foreground">
+          <div className="flex items-center gap-4 text-muted-foreground flex-shrink-0">
             <button 
               onClick={handleLike}
               className={`flex items-center gap-1.5 transition-colors ${isLiked ? 'text-red-500' : 'hover:text-red-500'} cursor-pointer`}

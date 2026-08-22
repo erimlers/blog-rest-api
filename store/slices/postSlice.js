@@ -46,7 +46,6 @@ export const createPost = createAsyncThunk(
   "posts/createPost",
   async (formData, { rejectWithValue }) => {
     try {
-      // FormData gönderilirken axios headers'da 'Content-Type': 'multipart/form-data' otomatik ayarlar
       const response = await api.post(ENDPOINTS.POSTS.CREATE, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -59,10 +58,78 @@ export const createPost = createAsyncThunk(
   }
 );
 
+// Tek bir postu ID ile getir
+export const fetchPostById = createAsyncThunk(
+  "posts/fetchPostById",
+  async (postId, { rejectWithValue }) => {
+    try {
+      const response = await api.get(ENDPOINTS.POSTS.DETAIL(postId));
+      return response.data || response;
+    } catch (error) {
+      return rejectWithValue(error.message || "Yazı bulunamadı.");
+    }
+  }
+);
+
+// Bir postun yorumlarını getir
+export const fetchComments = createAsyncThunk(
+  "posts/fetchComments",
+  async (postId, { rejectWithValue }) => {
+    try {
+      const response = await api.get(ENDPOINTS.COMMENTS.LIST(postId));
+      return response.data || response;
+    } catch (error) {
+      return rejectWithValue(error.message || "Yorumlar getirilemedi.");
+    }
+  }
+);
+
+// Yeni yorum ekle
+export const createComment = createAsyncThunk(
+  "posts/createComment",
+  async ({ postId, content }, { rejectWithValue }) => {
+    try {
+      const response = await api.post(ENDPOINTS.COMMENTS.CREATE(postId), { content });
+      return response.data || response;
+    } catch (error) {
+      return rejectWithValue(error.message || "Yorum eklenemedi.");
+    }
+  }
+);
+
+// Yorum güncelle
+export const updateComment = createAsyncThunk(
+  "posts/updateComment",
+  async ({ postId, commentId, content }, { rejectWithValue }) => {
+    try {
+      const response = await api.patch(ENDPOINTS.COMMENTS.UPDATE(postId, commentId), { content });
+      return response.data || response;
+    } catch (error) {
+      return rejectWithValue(error.message || "Yorum güncellenemedi.");
+    }
+  }
+);
+
+// Yorum sil
+export const deleteComment = createAsyncThunk(
+  "posts/deleteComment",
+  async ({ postId, commentId }, { rejectWithValue }) => {
+    try {
+      await api.delete(ENDPOINTS.COMMENTS.DELETE(postId, commentId));
+      return commentId; // Silinen yorumun id'sini dön
+    } catch (error) {
+      return rejectWithValue(error.message || "Yorum silinemedi.");
+    }
+  }
+);
+
 // ─── Slice ve State ──────────────────────────────────────────────────
 
 const initialState = {
   posts: [],
+  currentPost: null, // Detay sayfasında gösterilecek post
+  comments: [],      // Detay sayfasındaki postun yorumları
+  isCurrentPostLoading: false,
   isLoading: false,
   isInitialized: false,
   error: null,
@@ -126,11 +193,55 @@ const postSlice = createSlice({
         // Hangi post güncellendiyse onu bulup güncel haliyle değiştiriyoruz
         const index = state.posts.findIndex(p => p._id === action.payload.postId);
         if (index !== -1 && action.payload.post) {
-          // post nesnesinin tüm alanlarını güncellemiyoruz, sadece likes alanını güncelliyoruz
-          // veya tüm postu action.payload.post olarak değiştiriyoruz. Backend'in ne döndüğüne bağlı.
-          // Backend güncellenmiş post'u dönüyor
           state.posts[index].likes = action.payload.post.likes || action.payload.post.data?.likes;
         }
+        
+        // Eğer detay sayfasındaysak ve mevcut post beğenildiyse onu da güncelle
+        if (state.currentPost && state.currentPost._id === action.payload.postId) {
+          state.currentPost.likes = action.payload.post.likes || action.payload.post.data?.likes;
+        }
+      })
+      
+      // --- fetchPostById ---
+      .addCase(fetchPostById.pending, (state) => {
+        state.isCurrentPostLoading = true;
+        state.error = null;
+        state.currentPost = null; // Eski postu temizle
+        state.comments = [];      // Eski yorumları temizle
+      })
+      .addCase(fetchPostById.fulfilled, (state, action) => {
+        state.isCurrentPostLoading = false;
+        state.currentPost = action.payload;
+      })
+      .addCase(fetchPostById.rejected, (state, action) => {
+        state.isCurrentPostLoading = false;
+        state.error = action.payload;
+      })
+
+      // --- fetchComments ---
+      .addCase(fetchComments.fulfilled, (state, action) => {
+        state.comments = action.payload;
+      })
+
+      // --- createComment ---
+      .addCase(createComment.fulfilled, (state, action) => {
+        // Yeni eklenen yorumu listeye ekle
+        state.comments.unshift(action.payload); // Yeni yorumlar genelde en üste eklenir (veya push)
+      })
+
+      // --- updateComment ---
+      .addCase(updateComment.fulfilled, (state, action) => {
+        const updatedComment = action.payload;
+        const index = state.comments.findIndex(c => c._id === updatedComment._id);
+        if (index !== -1) {
+          state.comments[index] = updatedComment;
+        }
+      })
+
+      // --- deleteComment ---
+      .addCase(deleteComment.fulfilled, (state, action) => {
+        const deletedCommentId = action.payload;
+        state.comments = state.comments.filter(c => c._id !== deletedCommentId);
       });
   }
 });
