@@ -27,7 +27,7 @@ export default function PostCard({ post }) {
   return (
     <Link 
       href={`/posts/${post._id}`} 
-      className="group flex flex-col bg-background border border-border rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-300"
+      className="group flex flex-col bg-background border border-border rounded-2xl overflow-hidden hover:shadow-lg transition-colors duration-500 ease-in-out"
     >
       {/* Kapak Görseli */}
       {imageUrl ? (

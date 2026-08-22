@@ -28,10 +28,10 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       
       {/* Karşılama Başlığı (Hero) */}
-      <div className="bg-muted border-b border-border py-12 px-4 sm:px-6">
+      <div className="bg-muted border-b border-border py-12 px-4 sm:px-6 transition-colors duration-500 ease-in-out">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
             Düşüncelerinizi Keşfedin
@@ -71,7 +71,7 @@ export default function Home() {
 
           {/* Boş Durum */}
           {isInitialized && !isLoading && posts.length === 0 && !error && (
-            <div className="col-span-full text-center p-12 text-muted-foreground bg-muted/30 rounded-2xl border border-border border-dashed">
+            <div className="col-span-full text-center p-12 text-muted-foreground bg-muted/30 transition-colors duration-500 ease-in-out rounded-2xl border border-border border-dashed">
               Aramanızla eşleşen yazı bulunamadı.
             </div>
           )}
@@ -83,7 +83,7 @@ export default function Home() {
             <button
               onClick={handleLoadMore}
               disabled={isLoading}
-              className="px-8 py-3 bg-muted text-foreground border border-border font-medium rounded-full hover:bg-muted/80 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
+              className="px-8 py-3 bg-muted text-foreground border border-border font-medium rounded-full hover:bg-muted/80 hover:shadow-md transition-all duration-500 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2"
             >
               {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
               Daha Fazla Yükle

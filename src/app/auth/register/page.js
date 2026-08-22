@@ -63,7 +63,7 @@ export default function RegisterPage() {
   if (isSuccess) {
     return (
       <div className="min-h-[calc(100vh-10rem)] flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-muted border border-border rounded-2xl p-10 shadow-lg shadow-primary/5 text-center animate-in fade-in zoom-in duration-500">
+        <div className="w-full max-w-md bg-muted border border-border rounded-2xl p-10 shadow-lg shadow-primary/5 transition-colors duration-300 ease-in-out text-center animate-in fade-in zoom-in duration-500">
           <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-6" />
           <h2 className="text-2xl font-bold text-foreground mb-3">Kayıt Başarılı!</h2>
           <p className="text-muted-foreground mb-6">

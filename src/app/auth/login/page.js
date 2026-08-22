@@ -44,7 +44,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-[calc(100vh-10rem)] flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-muted border border-border rounded-2xl p-10 shadow-lg shadow-primary/5">
+      <div className="w-full max-w-md bg-muted border border-border rounded-2xl p-10 shadow-lg shadow-primary/5 transition-colors duration-300 ease-in-out">
         
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-foreground tracking-tight">Giriş Yap</h1>

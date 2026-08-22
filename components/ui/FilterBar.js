@@ -24,7 +24,7 @@ export default function FilterBar() {
   }, [searchTerm, dispatch, filters.search]);
 
   return (
-    <div className="flex flex-col sm:flex-row items-center gap-4 py-4 px-4 sm:px-6 bg-background border-b border-border">
+    <div className="flex flex-col sm:flex-row items-center gap-4 py-4 px-4 sm:px-6 bg-background border-b border-border transition-colors duration-500 ease-in-out">
       
       {/* Arama Çubuğu */}
       <div className="relative w-full flex-1">
@@ -42,7 +42,7 @@ export default function FilterBar() {
 
       {/* Sıralama Seçenekleri */}
       <div className="flex items-center gap-2 w-full sm:w-auto">
-        <div className="flex items-center gap-2 px-2 text-muted-foreground bg-muted py-2.5 rounded-full w-full sm:w-auto overflow-hidden">
+        <div className="flex items-center gap-2 px-2 text-muted-foreground bg-muted transition-colors duration-500 ease-in-out py-2.5 rounded-full w-full sm:w-auto overflow-hidden">
           <SlidersHorizontal className="h-4 w-4 ml-2 flex-shrink-0" />
           <select
             value={filters.sortBy}

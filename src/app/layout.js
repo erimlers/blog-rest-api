@@ -28,7 +28,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="tr" suppressHydrationWarning className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <body className="font-sans antialiased bg-background text-foreground min-h-screen flex flex-col">
+      <body className="font-sans antialiased bg-background text-foreground min-h-screen flex flex-col transition-colors duration-500 ease-in-out">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
