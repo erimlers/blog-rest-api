@@ -41,6 +41,24 @@ export const toggleLikePost = createAsyncThunk(
   }
 );
 
+// Yeni post oluşturma (Resim içerdiği için FormData kullanılmalı)
+export const createPost = createAsyncThunk(
+  "posts/createPost",
+  async (formData, { rejectWithValue }) => {
+    try {
+      // FormData gönderilirken axios headers'da 'Content-Type': 'multipart/form-data' otomatik ayarlar
+      const response = await api.post(ENDPOINTS.POSTS.CREATE, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return response.data || response;
+    } catch (error) {
+      return rejectWithValue(error.message || "Yazı paylaşılırken bir hata oluştu.");
+    }
+  }
+);
+
 // ─── Slice ve State ──────────────────────────────────────────────────
 
 const initialState = {
