@@ -1,11 +1,11 @@
 "use client";
 
-import ThemeToggle from "@components/ui/ThemeToggle";
-import { Menu, X, User, LogOut, PenSquare, Settings, Loader2 } from "lucide-react";
+import { Menu, X, User, LogOut, PenSquare, Settings, Loader2, PenTool } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { logoutUser } from "@store/slices/authSlice";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import NavbarSearch from "./NavbarSearch";
 
 export default function MobileNavbar() {
   const { isAuthenticated, user, isAuthChecked } = useSelector((state) => state.auth);
@@ -40,13 +40,14 @@ export default function MobileNavbar() {
         <div className="container mx-auto px-4 h-full flex items-center justify-between">
           
           {/* Sol Alan: Logo */}
-          <Link href="/" onClick={() => setIsMenuOpen(false)} className="text-xl font-bold tracking-tight text-primary cursor-pointer hover:opacity-80 transition-opacity duration-300">
-            <span className="text-foreground">&lt;</span>Blog<span className="text-foreground">/&gt;</span>
-          </Link>
+          <div className="flex shrink-0 items-center justify-start">
+            <Link href="/" onClick={() => setIsMenuOpen(false)} className="text-xl font-bold tracking-tight text-primary cursor-pointer hover:opacity-80 transition-opacity duration-300">
+              <span className="text-foreground">&lt;</span>Blog<span className="text-foreground">/&gt;</span>
+            </Link>
+          </div>
 
-          {/* Sağ Alan: Tema ve Menü */}
+          {/* Sağ Alan: Menü */}
           <div className="flex items-center gap-2">
-            <ThemeToggle />
             <button 
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-all duration-300 ease-in-out focus:outline-none"
@@ -64,9 +65,14 @@ export default function MobileNavbar() {
             
             {/* Navigasyon Linkleri */}
             <div className="flex flex-col gap-6 text-center mb-8">
-              <Link href="/" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium text-muted-foreground hover:text-primary transition-colors">Anasayfa</Link>
-              <Link href="/posts" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium text-muted-foreground hover:text-primary transition-colors">Yazılar</Link>
-              <Link href="/about" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium text-muted-foreground hover:text-primary transition-colors">Hakkımızda</Link>
+              {/* Arama Çubuğu (Giriş Yapmış Kullanıcı) */}
+              {isAuthenticated && (
+                <div className="mb-4">
+                  <NavbarSearch />
+                </div>
+              )}
+              
+              <Link href="/about" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium text-muted-foreground hover:text-primary transition-colors cursor-pointer py-2">Hakkımızda</Link>
             </div>
 
             <div className="w-full h-px bg-border mb-8"></div>
@@ -81,12 +87,18 @@ export default function MobileNavbar() {
               ) : isAuthenticated ? (
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center gap-3 px-4 py-3 bg-muted/50 rounded-xl">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                      <User className="w-5 h-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-foreground">Hesabım</p>
-                      <p className="text-xs text-muted-foreground">Aktif Oturum</p>
+                    {user?.profileImage ? (
+                      <img src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || "http://localhost:8080"}${user.profileImage}`} alt={user.username} className="w-12 h-12 rounded-full object-cover border border-border shrink-0" />
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm border border-primary/20 shrink-0">
+                        {((user?.name?.charAt(0) || '') + (user?.lastname?.charAt(0) || '')).toUpperCase() || <User className="w-5 h-5" />}
+                      </div>
+                    )}
+                    <div className="flex flex-col min-w-0">
+                      <p className="text-sm font-semibold text-foreground truncate">
+                        {user?.name} {user?.lastname}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">@{user?.username}</p>
                     </div>
                   </div>
                   
@@ -94,15 +106,15 @@ export default function MobileNavbar() {
                     <Link 
                       href="/posts/create" 
                       onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center justify-center gap-2 w-full px-4 py-3 text-sm font-medium text-foreground bg-primary/10 hover:bg-primary/20 text-primary rounded-xl transition-colors"
+                      className="flex items-center justify-center gap-3 w-full px-4 py-3.5 mb-2 text-sm font-bold bg-primary text-primary-foreground rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-colors"
                     >
-                      <PenSquare className="w-4 h-4" />
-                      Yazı Oluştur
+                      <PenTool className="w-5 h-5" />
+                      <span>Yeni Yazı Oluştur</span>
                     </Link>
                     <Link 
                       href={`/profile/${user.username}`} 
                       onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center justify-center gap-2 w-full px-4 py-3 text-sm font-medium text-foreground bg-muted hover:bg-muted/80 rounded-xl transition-colors"
+                      className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-foreground hover:bg-muted hover:text-primary transition-colors cursor-pointer rounded-xl"
                     >
                       <User className="w-4 h-4" />
                       Profilim
@@ -128,14 +140,16 @@ export default function MobileNavbar() {
               ) : (
                 <div className="flex flex-col gap-3">
                   <Link 
-                    href="/auth/login" 
+                    href="?auth=login"
+                    scroll={false} 
                     onClick={() => setIsMenuOpen(false)}
                     className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium bg-primary text-primary-foreground rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-colors"
                   >
                     Giriş Yap
                   </Link>
                   <Link 
-                    href="/auth/register" 
+                    href="?auth=register"
+                    scroll={false} 
                     onClick={() => setIsMenuOpen(false)}
                     className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-foreground bg-muted hover:bg-muted/80 rounded-xl transition-colors"
                   >

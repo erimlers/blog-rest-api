@@ -8,11 +8,21 @@ import { formatRelativeTime } from "../../../../lib/formatTime";
 import { Loader2, Heart, MessageCircle, ArrowLeft, Calendar, User } from "lucide-react";
 import Link from "next/link";
 import CommentSection from "../../../../components/comments/CommentSection";
+import dynamic from "next/dynamic";
+import { useTheme } from "next-themes";
+import '@uiw/react-md-editor/markdown-editor.css';
+import '@uiw/react-markdown-preview/markdown.css';
+
+const MDPreview = dynamic(
+  () => import("@uiw/react-md-editor").then((mod) => mod.default.Markdown),
+  { ssr: false, loading: () => <div className="w-full h-[200px] bg-muted animate-pulse rounded-xl" /> }
+);
 
 export default function PostDetailPage() {
   const { id } = useParams();
   const dispatch = useDispatch();
   const router = useRouter();
+  const { theme } = useTheme();
 
   const { currentPost, isCurrentPostLoading, error } = useSelector((state) => state.posts);
   const { user, isAuthenticated } = useSelector((state) => state.auth);
@@ -145,8 +155,12 @@ export default function PostDetailPage() {
       )}
 
       {/* Yazı İçeriği */}
-      <div className="prose prose-lg dark:prose-invert prose-zinc max-w-none mb-16 text-foreground/90 leading-loose transition-colors duration-500 ease-in-out whitespace-pre-wrap">
-        {currentPost.content}
+      <div data-color-mode={theme === "dark" ? "dark" : "light"} className="mb-16 rounded-xl overflow-hidden">
+        <MDPreview 
+          source={currentPost.content} 
+          style={{ backgroundColor: 'transparent', color: 'inherit' }} 
+          className="prose prose-lg dark:prose-invert prose-zinc max-w-none text-foreground/90 leading-loose transition-colors duration-500 ease-in-out"
+        />
       </div>
 
       {/* Etiketler */}

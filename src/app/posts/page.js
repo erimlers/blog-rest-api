@@ -29,25 +29,10 @@ export default function PostsPage() {
 
   return (
     <div className="min-h-screen">
-      
-      {/* Karşılama Başlığı (Hero) */}
-      <div className="bg-muted border-b border-border py-12 px-4 sm:px-6 transition-colors duration-500 ease-in-out">
-        <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
-            Tüm Yazılar
-          </h1>
-          <p className="text-muted-foreground text-lg">
-            En güncel yazıları okuyun, arama yapın ve filtreleyin.
-          </p>
-        </div>
-      </div>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        {/* Filtreleme Çubuğu */}
-        <div className="mb-8 rounded-2xl overflow-hidden border border-border shadow-sm">
-          <FilterBar />
-        </div>
+        {/* Sıralama (Filtreleme) Sekmeleri */}
+        <FilterBar />
 
         {/* Hata Durumu */}
         {error && (
@@ -57,7 +42,7 @@ export default function PostsPage() {
         )}
 
         {/* Post Listesi (Grid - Blog Tarzı) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-4">
           {posts.map((post) => (
             <PostCard key={post._id} post={post} />
           ))}

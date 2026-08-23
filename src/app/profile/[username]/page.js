@@ -136,7 +136,7 @@ export default function ProfilePage() {
         {postsLoading ? (
            <div className="py-10 flex justify-center"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
         ) : posts.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-4">
             {posts.map(post => (
               <PostCard key={post._id} post={post} />
             ))}

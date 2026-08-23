@@ -5,7 +5,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { updateProfile, clearUpdateStatus } from "@store/slices/profileSlice";
 import { logoutUser } from "@store/slices/authSlice";
 import { useRouter } from "next/navigation";
-import { User, Settings, Lock, Upload, Loader2, Save, CheckCircle2, AlertCircle } from "lucide-react";
+import { User, Settings, Lock, Upload, Loader2, Save, CheckCircle2, AlertCircle, Palette } from "lucide-react";
+import ThemeToggle from "@components/ui/ThemeToggle";
 
 export default function SettingsPage() {
   const { user: currentUser, isAuthenticated, isAuthChecked } = useSelector((state) => state.auth);
@@ -181,6 +182,13 @@ export default function SettingsPage() {
           >
             <Lock className="w-5 h-5" />
             Hesap ve Güvenlik
+          </button>
+          <button 
+            onClick={() => setActiveTab("appearance")}
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${activeTab === 'appearance' ? 'bg-primary text-primary-foreground shadow-sm' : 'hover:bg-muted text-muted-foreground hover:text-foreground'}`}
+          >
+            <Palette className="w-5 h-5" />
+            Görünüm
           </button>
           <button 
             onClick={() => setActiveTab("posts")}
@@ -369,6 +377,19 @@ export default function SettingsPage() {
                          </button>
                        </div>
                      </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "appearance" && (
+                <div className="space-y-8 animate-in fade-in duration-300">
+                  <h2 className="text-xl font-bold text-foreground border-b border-border pb-4">Görünüm Ayarları</h2>
+                  <div className="flex items-center justify-between p-6 bg-muted/30 rounded-xl border border-border">
+                    <div>
+                      <h3 className="text-lg font-semibold text-foreground">Tema Seçimi</h3>
+                      <p className="text-sm text-muted-foreground mt-1">Uygulama temasını karanlık veya aydınlık mod olarak değiştirin.</p>
+                    </div>
+                    <ThemeToggle />
                   </div>
                 </div>
               )}

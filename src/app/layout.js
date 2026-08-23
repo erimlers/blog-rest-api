@@ -5,6 +5,8 @@ import Navbar from "@components/layout/Navbar";
 import Footer from "@components/layout/Footer";
 import { ThemeProvider } from "@components/theme-provider";
 import FloatingCreateButton from "@components/ui/FloatingCreateButton";
+import AuthModal from "@components/auth/AuthModal";
+import { Suspense } from "react";
 
 // Ana font (Okunabilirlik için Inter)
 const inter = Inter({
@@ -38,6 +40,10 @@ export default function RootLayout({ children }) {
           <ReduxProvider>
             <Navbar />
             
+            <Suspense fallback={null}>
+              <AuthModal />
+            </Suspense>
+
             {/* Sayfa içeriği ortalanır, header ve footer arasına yayılır */}
             <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
               {children}

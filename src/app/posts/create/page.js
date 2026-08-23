@@ -6,6 +6,15 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createPost } from "../../../../store/slices/postSlice";
 import { Loader2, ImagePlus, X } from "lucide-react";
+import dynamic from "next/dynamic";
+import { useTheme } from "next-themes";
+import '@uiw/react-md-editor/markdown-editor.css';
+import '@uiw/react-markdown-preview/markdown.css';
+
+const MDEditor = dynamic(
+  () => import("@uiw/react-md-editor"),
+  { ssr: false, loading: () => <div className="w-full h-[400px] bg-muted animate-pulse rounded-xl" /> }
+);
 
 export default function CreatePostPage() {
   const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm();
@@ -17,13 +26,15 @@ export default function CreatePostPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const { theme } = useTheme();
   
   // Tag sistemi için local stateler
   const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState("");
 
-  // Watch the image field to generate a preview
+  // Watch the fields
   const imageFile = watch("image");
+  const contentValue = watch("content");
 
   useEffect(() => {
     // Generate image preview when file changes
@@ -182,20 +193,29 @@ export default function CreatePostPage() {
             )}
           </div>
 
-          {/* İçerik Alanı (Textarea) */}
-          <div>
-            <label htmlFor="content" className="block text-sm font-medium text-foreground mb-2">
+          {/* İçerik Alanı (Markdown Editor) */}
+          <div data-color-mode={theme === "dark" ? "dark" : "light"}>
+            <label className="block text-sm font-medium text-foreground mb-2">
               İçerik
             </label>
-            <textarea
-              id="content"
-              rows={12}
-              placeholder="Yazınızı buraya yazmaya başlayın..."
-              className={`w-full px-4 py-3 bg-muted border ${errors.content ? 'border-red-500' : 'border-border'} rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all resize-y`}
+            <div className={`rounded-xl overflow-hidden border ${errors.content ? 'border-red-500' : 'border-border'}`}>
+              <MDEditor
+                value={contentValue}
+                onChange={(val) => setValue("content", val || "", { shouldValidate: true })}
+                height={400}
+                preview="edit"
+                textareaProps={{
+                  placeholder: "Yazınızı markdown formatında buraya yazmaya başlayın..."
+                }}
+              />
+            </div>
+            {/* React Hook Form validation'ı tetiklemek için gizli input */}
+            <input 
+              type="hidden" 
               {...register("content", { 
                 required: "İçerik zorunludur.",
                 minLength: { value: 10, message: "İçerik çok kısa, lütfen biraz daha detaylandırın." }
-              })}
+              })} 
             />
             {errors.content && <p className="mt-1 text-sm text-red-500">{errors.content.message}</p>}
           </div>
