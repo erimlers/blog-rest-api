@@ -92,13 +92,24 @@ const login = async(req,res) =>{
         throw new APIError("Geçersiz şifre.",401);
     }
 
-    const token = createToken(user,"7d");
+    const accessToken = createToken(user, "15m");
+    const refreshToken = createToken(user, "7d");
 
-    res.cookie("accessToken", token, {
+    user.refreshToken = refreshToken;
+    await user.save();
+
+    res.cookie("accessToken", accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: 15 * 60 * 1000, // 15 dakika
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 gün
     });
 
     return new Response({
@@ -113,13 +124,80 @@ const login = async(req,res) =>{
     }, "Giriş başarılı.").success(res);
 }
 
-const logout = async(req,res) => {
+const logout = async (req, res) => {
+    // req.user yoksa bile token'dan bulmak için deneyebiliriz ama genellikle
+    // client logout'a bastığında accessToken ile istek atar.
+    // accessToken süresi geçmiş olsa da, çerezleri silebiliriz.
+    
+    // Güvenlik: DB'den refreshToken'ı temizle (eğer accessToken'dan gelen req.user varsa)
+    if (req.user && req.user._id) {
+        await User.findByIdAndUpdate(req.user._id, { refreshToken: null });
+    } else {
+        // req.user yoksa ve sadece çerezlerle logout atmışsa refreshToken'ı okuyalım
+        const refreshTokenCookie = req.cookies?.refreshToken;
+        if (refreshTokenCookie) {
+             const user = await User.findOne({ refreshToken: refreshTokenCookie });
+             if (user) {
+                 user.refreshToken = null;
+                 await user.save();
+             }
+        }
+    }
+
     res.clearCookie("accessToken", {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
     });
+
+    res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+    });
+
     return new Response(null, "Çıkış başarılı.").success(res);
+}
+
+const refreshToken = async (req, res) => {
+    const token = req.cookies?.refreshToken;
+
+    if (!token) {
+        throw new APIError("Yenileme jetonu bulunamadı. Lütfen tekrar giriş yapın.", 401);
+    }
+
+    let decoded;
+    try {
+        decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    } catch {
+        throw new APIError("Yenileme jetonu geçersiz veya süresi dolmuş.", 401);
+    }
+
+    const user = await User.findById(decoded.id);
+    
+    if (!user) {
+        throw new APIError("Kullanıcı bulunamadı.", 404);
+    }
+
+    // Güvenlik kontrolü: Veritabanındaki refreshToken ile gelen token aynı mı?
+    if (user.refreshToken !== token) {
+        // Başkası token'ı kullanmış olabilir, güvenlik için token'ı sıfırla
+        user.refreshToken = null;
+        await user.save();
+        throw new APIError("Güvenlik ihlali tespit edildi. Lütfen tekrar giriş yapın.", 401);
+    }
+
+    // Her şey yolunda, yeni bir accessToken üret
+    const newAccessToken = createToken(user, "15m");
+
+    res.cookie("accessToken", newAccessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 15 * 60 * 1000, // 15 dakika
+    });
+
+    return new Response(null, "Token başarıyla yenilendi.").success(res);
 }
 
 const forgotPassword = async (req, res) => {
@@ -189,5 +267,6 @@ module.exports = {
     login,
     logout,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    refreshToken
 }
