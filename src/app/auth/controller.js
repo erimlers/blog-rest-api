@@ -122,9 +122,72 @@ const logout = async(req,res) => {
     return new Response(null, "Çıkış başarılı.").success(res);
 }
 
+const forgotPassword = async (req, res) => {
+    const { emailOrUsername } = req.body;
+    if (!emailOrUsername) {
+        throw new APIError("Lütfen e-posta veya kullanıcı adınızı girin.", 400);
+    }
+
+    const user = await User.findOne({
+        $or: [{ email: emailOrUsername }, { username: emailOrUsername }]
+    });
+
+    if (!user) {
+        throw new APIError("Bu bilgilere ait bir kullanıcı bulunamadı.", 404);
+    }
+
+    // 15 dakikalık şifre sıfırlama token'ı oluştur
+    const token = createToken(user, "15m");
+
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: user.email,
+        subject: "Şifre Sıfırlama İsteği",
+        html: `
+            <h1>Merhaba, ${user.name}!</h1>
+            <p>Hesabınız için bir şifre sıfırlama isteği aldık. Şifrenizi sıfırlamak için aşağıdaki bağlantıya tıklayın:</p>
+            <p><strong>Bu bağlantı 15 dakika boyunca geçerlidir.</strong></p>
+            <a href="http://localhost:3000/auth/reset-password?token=${token}">Şifremi Sıfırla</a>
+            <p>Eğer bu isteği siz yapmadıysanız, bu e-postayı dikkate almayabilirsiniz.</p>
+        `
+    };
+
+    await sendMail(mailOptions);
+
+    return new Response(null, "Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.").success(res);
+}
+
+const resetPassword = async (req, res) => {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+        throw new APIError("Eksik veya geçersiz parametreler.", 400);
+    }
+
+    let decoded;
+    try {
+        decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    } catch {
+        throw new APIError("Şifre sıfırlama bağlantısı geçersiz veya süresi dolmuş.", 400);
+    }
+
+    const user = await User.findById(decoded.id);
+    if (!user) {
+        throw new APIError("Kullanıcı bulunamadı.", 404);
+    }
+
+    // Yeni şifreyi kaydet
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    return new Response(null, "Şifreniz başarıyla güncellendi. Artık yeni şifrenizle giriş yapabilirsiniz.").success(res);
+}
+
 module.exports = {
     register,
     verifyMail,
     login,
-    logout
+    logout,
+    forgotPassword,
+    resetPassword
 }
