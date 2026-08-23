@@ -4,13 +4,14 @@ import ThemeToggle from "@components/ui/ThemeToggle";
 import { useSelector, useDispatch } from "react-redux";
 import { logoutUser } from "@store/slices/authSlice";
 import Link from "next/link";
-import { User, LogOut, ChevronDown, PenSquare, Settings } from "lucide-react";
+import { User, LogOut, ChevronDown, PenSquare, Settings, Loader2 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
 export default function DesktopNavbar() {
   const { isAuthenticated, user, isAuthChecked } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const dropdownRef = useRef(null);
 
   // Dropdown dışına tıklandığında menüyü kapatmak için
@@ -26,9 +27,13 @@ export default function DesktopNavbar() {
     };
   }, []);
 
-  const handleLogout = () => {
-    dispatch(logoutUser());
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    // Yükleniyor animasyonunun gözükmesi için yapay bir gecikme (800ms)
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    await dispatch(logoutUser());
     setIsDropdownOpen(false);
+    setIsLoggingOut(false);
   };
 
   return (
@@ -101,10 +106,11 @@ export default function DesktopNavbar() {
                   <div className="w-full h-px bg-border my-1"></div>
                   <button 
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
+                    disabled={isLoggingOut}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer disabled:opacity-50"
                   >
-                    <LogOut className="w-4 h-4" />
-                    <span>Çıkış Yap</span>
+                    {isLoggingOut ? <Loader2 className="w-4 h-4 animate-spin" /> : <LogOut className="w-4 h-4" />}
+                    <span>{isLoggingOut ? "Çıkış Yapılıyor..." : "Çıkış Yap"}</span>
                   </button>
                 </div>
               )}

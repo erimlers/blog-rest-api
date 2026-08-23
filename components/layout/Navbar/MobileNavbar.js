@@ -1,7 +1,7 @@
 "use client";
 
 import ThemeToggle from "@components/ui/ThemeToggle";
-import { Menu, X, User, LogOut, PenSquare, Settings } from "lucide-react";
+import { Menu, X, User, LogOut, PenSquare, Settings, Loader2 } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { logoutUser } from "@store/slices/authSlice";
 import Link from "next/link";
@@ -11,6 +11,7 @@ export default function MobileNavbar() {
   const { isAuthenticated, user, isAuthChecked } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // Menü açıkken arkaplanı kaydırmayı engelle
   useEffect(() => {
@@ -24,9 +25,13 @@ export default function MobileNavbar() {
     };
   }, [isMenuOpen]);
 
-  const handleLogout = () => {
-    dispatch(logoutUser());
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    // Yükleniyor animasyonunun gözükmesi için yapay bir gecikme (800ms)
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    await dispatch(logoutUser());
     setIsMenuOpen(false);
+    setIsLoggingOut(false);
   };
 
   return (
@@ -111,14 +116,12 @@ export default function MobileNavbar() {
                       Ayarlar
                     </Link>
                     <button 
-                      onClick={() => {
-                        handleLogout();
-                        setIsMenuOpen(false);
-                      }}
-                      className="flex items-center justify-center gap-2 w-full px-4 py-3 text-sm font-medium text-red-500 bg-red-500/10 hover:bg-red-500/20 rounded-xl transition-colors"
+                      onClick={handleLogout}
+                      disabled={isLoggingOut}
+                      className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-red-500 bg-red-500/10 hover:bg-red-500/20 rounded-xl transition-colors disabled:opacity-50"
                     >
-                      <LogOut className="w-4 h-4" />
-                      Çıkış Yap
+                      <span className="font-medium">{isLoggingOut ? "Çıkış Yapılıyor..." : "Çıkış Yap"}</span>
+                      {isLoggingOut ? <Loader2 className="w-4 h-4 animate-spin" /> : <LogOut className="w-4 h-4" />}
                     </button>
                   </div>
                 </div>

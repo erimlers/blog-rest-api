@@ -9,7 +9,7 @@ import { User, Settings, Lock, Upload, Loader2, Save, CheckCircle2, AlertCircle 
 
 export default function SettingsPage() {
   const { user: currentUser, isAuthenticated, isAuthChecked } = useSelector((state) => state.auth);
-  const { isUpdating, updateSuccess, updateMessage, error, requireRelogin } = useSelector((state) => state.profile);
+  const { isUpdating, updateSuccess, updateMessage, error } = useSelector((state) => state.profile);
   const dispatch = useDispatch();
   const router = useRouter();
 
@@ -19,21 +19,25 @@ export default function SettingsPage() {
     name: "",
     lastname: "",
     username: "",
-    email: "",
     currentPassword: "",
     newPassword: "",
     removeImage: false,
   });
+  const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
+  const [emailPassword, setEmailPassword] = useState("");
+  const [newEmail, setNewEmail] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
+  const [isChangingEmail, setIsChangingEmail] = useState(false);
+  const [localError, setLocalError] = useState("");
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://localhost:8080";
 
   useEffect(() => {
-    if (isAuthChecked && !isAuthenticated && !requireRelogin) {
+    if (isAuthChecked && !isAuthenticated) {
       router.push("/auth/login");
     }
-  }, [isAuthChecked, isAuthenticated, requireRelogin, router]);
+  }, [isAuthChecked, isAuthenticated, router]);
 
   useEffect(() => {
     if (currentUser) {
@@ -42,7 +46,6 @@ export default function SettingsPage() {
         name: currentUser.name || "",
         lastname: currentUser.lastname || "",
         username: currentUser.username || "",
-        email: currentUser.email || "",
       }));
     }
   }, [currentUser]);
@@ -50,6 +53,10 @@ export default function SettingsPage() {
   useEffect(() => {
     if (updateSuccess && !isUpdating) {
         setFormData(prev => ({ ...prev, currentPassword: "", newPassword: "" }));
+        setNewPasswordConfirm("");
+        setEmailPassword("");
+        setNewEmail("");
+        setIsChangingEmail(false);
     }
   }, [updateSuccess, isUpdating]);
 
@@ -61,13 +68,6 @@ export default function SettingsPage() {
       return () => clearTimeout(timer);
     }
   }, [updateSuccess, error, dispatch]);
-
-  useEffect(() => {
-    if (requireRelogin) {
-      dispatch(logoutUser());
-      router.push("/auth/login?message=" + encodeURIComponent(updateMessage || "Güvenliğiniz için tekrar giriş yapın."));
-    }
-  }, [requireRelogin, dispatch, router, updateMessage]);
 
   // Sayfadan ayrılırken state'i temizle
   useEffect(() => {
@@ -96,18 +96,46 @@ export default function SettingsPage() {
     setFormData(prev => ({ ...prev, removeImage: true }));
   };
 
+  const handleEmailSubmit = () => {
+    setLocalError("");
+    if (!newEmail || !emailPassword) {
+      setLocalError("Lütfen yeni e-posta adresinizi ve mevcut şifrenizi girin.");
+      return;
+    }
+    if (newEmail === currentUser?.email) {
+      setLocalError("Yeni e-posta adresi mevcut e-posta adresinizle aynı olamaz.");
+      return;
+    }
+    const data = new FormData();
+    data.append("email", newEmail);
+    data.append("currentPassword", emailPassword);
+    dispatch(updateProfile(data));
+  };
+
+  const handlePasswordSubmit = () => {
+    setLocalError("");
+    if (!formData.currentPassword || !formData.newPassword) {
+      setLocalError("Lütfen mevcut şifrenizi ve yeni şifrenizi girin.");
+      return;
+    }
+    if (formData.newPassword !== newPasswordConfirm) {
+      setLocalError("Yeni şifreler birbirleriyle eşleşmiyor.");
+      return;
+    }
+    const data = new FormData();
+    data.append("currentPassword", formData.currentPassword);
+    data.append("newPassword", formData.newPassword);
+    dispatch(updateProfile(data));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    setLocalError("");
+
     const data = new FormData();
     if (formData.name !== currentUser?.name) data.append("name", formData.name);
     if (formData.lastname !== currentUser?.lastname) data.append("lastname", formData.lastname);
     if (formData.username !== currentUser?.username) data.append("username", formData.username);
-    if (formData.email !== currentUser?.email) data.append("email", formData.email);
-    
-    if (formData.currentPassword && formData.newPassword) {
-      data.append("currentPassword", formData.currentPassword);
-      data.append("newPassword", formData.newPassword);
-    }
     
     if (selectedFile) {
        data.append("profileImage", selectedFile);
@@ -165,7 +193,7 @@ export default function SettingsPage() {
 
         {/* Sağ İçerik Alanı */}
         <div className="flex-1">
-          {updateSuccess && !requireRelogin && (
+          {updateSuccess && (
             <div className="mb-6 p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-600 flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
               <CheckCircle2 className="w-5 h-5 flex-shrink-0 mt-0.5" />
               <div>
@@ -181,6 +209,16 @@ export default function SettingsPage() {
               <div>
                 <h4 className="font-medium">Bir hata oluştu</h4>
                 <p className="text-sm opacity-90 mt-1">{error}</p>
+              </div>
+            </div>
+          )}
+
+          {localError && (
+            <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
+              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+              <div>
+                <h4 className="font-medium">Hata</h4>
+                <p className="text-sm opacity-90 mt-1">{localError}</p>
               </div>
             </div>
           )}
@@ -246,14 +284,64 @@ export default function SettingsPage() {
                 <div className="space-y-8 animate-in fade-in duration-300">
                   <h2 className="text-xl font-bold text-foreground border-b border-border pb-4">Hesap ve Güvenlik</h2>
                   
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-foreground">E-posta Adresi</label>
-                    <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full px-4 py-2.5 bg-muted/50 border border-border rounded-xl focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all" />
+                  {/* E-posta Bölümü */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-foreground">E-posta Adresi</h3>
+                    {!isChangingEmail ? (
+                      <div className="flex items-center justify-between p-4 bg-muted/50 rounded-xl border border-border">
+                        <span className="text-foreground font-medium">{currentUser?.email}</span>
+                        <button 
+                          type="button"
+                          onClick={() => setIsChangingEmail(true)}
+                          className="text-sm font-medium text-primary hover:underline cursor-pointer"
+                        >
+                          E-posta Adresini Değiştir
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="p-5 bg-muted/30 rounded-xl border border-border space-y-4">
+                        <div className="flex justify-between items-center mb-2">
+                          <h4 className="font-medium text-foreground">Yeni E-posta Belirle</h4>
+                          <button 
+                            type="button" 
+                            onClick={() => { 
+                              setIsChangingEmail(false); 
+                              setNewEmail(""); 
+                              setEmailPassword("");
+                              setLocalError("");
+                            }} 
+                            className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                          >
+                            İptal Et
+                          </button>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-foreground">Yeni E-posta Adresi</label>
+                          <input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="Yeni e-posta adresinizi girin" className="w-full px-4 py-2.5 bg-background border border-border rounded-xl focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all" />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-foreground">Mevcut Şifreniz</label>
+                          <input type="password" value={emailPassword} onChange={(e) => setEmailPassword(e.target.value)} placeholder="Güvenliğiniz için mevcut şifrenizi girmelisiniz" className="w-full px-4 py-2.5 bg-background border border-border rounded-xl focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all" />
+                        </div>
+                        <div className="flex justify-end pt-2">
+                          <button 
+                            type="button" 
+                            onClick={handleEmailSubmit}
+                            disabled={isUpdating}
+                            className="px-6 py-2.5 text-sm font-medium bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all flex items-center gap-2 cursor-pointer"
+                          >
+                            {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                            E-postayı Güncelle
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
+                  {/* Şifre Bölümü */}
                   <div className="pt-6 border-t border-border space-y-6">
                      <div>
-                       <h4 className="font-medium text-foreground">Şifre Değiştir</h4>
+                       <h3 className="text-lg font-semibold text-foreground">Şifre Değiştir</h3>
                        <p className="text-sm text-muted-foreground mt-1">Eğer şifrenizi değiştirmek istemiyorsanız bu alanları boş bırakın.</p>
                      </div>
                      <div className="space-y-4">
@@ -264,6 +352,21 @@ export default function SettingsPage() {
                        <div className="space-y-2">
                          <label className="text-sm font-medium text-foreground">Yeni Şifre</label>
                          <input type="password" name="newPassword" value={formData.newPassword} onChange={handleInputChange} className="w-full px-4 py-2.5 bg-muted/50 border border-border rounded-xl focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all" />
+                       </div>
+                       <div className="space-y-2">
+                         <label className="text-sm font-medium text-foreground">Yeni Şifre (Tekrar)</label>
+                         <input type="password" value={newPasswordConfirm} onChange={(e) => setNewPasswordConfirm(e.target.value)} className="w-full px-4 py-2.5 bg-muted/50 border border-border rounded-xl focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary/50 text-foreground transition-all" />
+                       </div>
+                       <div className="flex justify-end pt-4">
+                         <button 
+                           type="button" 
+                           onClick={handlePasswordSubmit}
+                           disabled={isUpdating}
+                           className="px-6 py-2.5 text-sm font-medium bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all flex items-center gap-2 cursor-pointer"
+                         >
+                           {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                           Şifreyi Değiştir
+                         </button>
                        </div>
                      </div>
                   </div>
@@ -279,12 +382,14 @@ export default function SettingsPage() {
                 </div>
               )}
 
-              {/* Ortak Kaydet Butonu */}
-              <div className="pt-8 flex justify-end">
-                <button type="submit" disabled={isUpdating} className="px-6 py-3 text-sm font-medium bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 hover:shadow-md transition-all flex items-center gap-2">
-                  {isUpdating ? <><Loader2 className="w-4 h-4 animate-spin" /> Kaydediliyor...</> : <><Save className="w-4 h-4" /> Değişiklikleri Kaydet</>}
-                </button>
-              </div>
+              {/* Ortak Kaydet Butonu (Sadece profil sekmesinde görünür) */}
+              {activeTab === "profile" && (
+                <div className="pt-8 flex justify-end">
+                  <button type="submit" disabled={isUpdating} className="px-6 py-3 text-sm font-medium bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 hover:shadow-md transition-all flex items-center gap-2 cursor-pointer">
+                    {isUpdating ? <><Loader2 className="w-4 h-4 animate-spin" /> Kaydediliyor...</> : <><Save className="w-4 h-4" /> Değişiklikleri Kaydet</>}
+                  </button>
+                </div>
+              )}
 
             </form>
           </div>
