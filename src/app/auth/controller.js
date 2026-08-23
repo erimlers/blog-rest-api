@@ -52,30 +52,49 @@ const register = async(req,res) =>{
     },"Kayıt başarılı. Doğrulama e-postası adresinize gönderildi.").created(res);
 }
 
-const verifyMail = async(req,res) =>{
-    const {token} = req.query;
-    if(!token){
-        throw new APIError("Doğrulama tokeni eksik.",400);
+const verifyMail = async (req, res) => {
+    const { token } = req.query;
+    if (!token) {
+        throw new APIError("Doğrulama tokeni eksik.", 400);
     }
     let decoded;
     try {
         decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
     } catch {
-        throw new APIError("Geçersiz veya süresi dolmuş doğrulama tokeni.",400);
+        throw new APIError("Geçersiz veya süresi dolmuş doğrulama tokeni.", 400);
     }
 
     const user = await User.findById(decoded.id);
-    if(!user){
-        throw new APIError("Kullanıcı bulunamadı.",404);
+    if (!user) {
+        throw new APIError("Kullanıcı bulunamadı.", 404);
     }
-    if(user.isVerified){
-        return new Response(null,"Hesabınız daha önce doğrulanmış.").ok(res);
+
+    if (decoded.newEmail) {
+        // E-posta değiştirme onayı
+        if (user.pendingEmail !== decoded.newEmail) {
+            throw new APIError("Bu e-posta değişikliği talebi geçersiz veya iptal edilmiş.", 400);
+        }
+
+        user.email = decoded.newEmail;
+        user.pendingEmail = null;
+        user.isVerified = true;
+        
+        // Güvenlik gereği işlemi yapan cihaz dahil tüm cihazlardan çıkış yapmasını sağla
+        user.refreshToken = null; 
+        
+        await user.save();
+        return res.redirect("http://localhost:3000/auth/login?message=" + encodeURIComponent("E-posta adresiniz başarıyla güncellendi. Lütfen yeni adresinizle tekrar giriş yapın."));
+    }
+
+    // Normal kayıt doğrulama
+    if (user.isVerified) {
+        return res.redirect("http://localhost:3000/auth/login?message=" + encodeURIComponent("Hesabınız daha önce doğrulanmış."));
     }
     
     user.isVerified = true;
     await user.save();
 
-    return new Response(null, "Hesabınız başarıyla doğrulandı. Artık giriş yapabilirsiniz.").success(res);
+    return res.redirect("http://localhost:3000/auth/login?message=" + encodeURIComponent("Hesabınız başarıyla doğrulandı. Artık giriş yapabilirsiniz."));
 }
 
 const login = async(req,res) =>{
@@ -200,6 +219,37 @@ const refreshToken = async (req, res) => {
     return new Response(null, "Token başarıyla yenilendi.").success(res);
 }
 
+const cancelEmailChange = async (req, res) => {
+    const { token } = req.query;
+    if (!token) {
+        throw new APIError("Geçersiz işlem.", 400);
+    }
+    
+    let decoded;
+    try {
+        decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    } catch {
+        // Zaten süresi dolduysa büyük ihtimalle risk kalmamıştır ama yine de haber verelim
+        throw new APIError("Bağlantı geçersiz veya süresi dolmuş.", 400);
+    }
+
+    const user = await User.findById(decoded.id);
+    if (!user) {
+        throw new APIError("Kullanıcı bulunamadı.", 404);
+    }
+
+    if (user.pendingEmail === decoded.newEmail) {
+        user.pendingEmail = null;
+        // Hesabı kilitleme / Güvenlik için tüm cihazlardan atma
+        user.refreshToken = null;
+        await user.save();
+        
+        return res.redirect("http://localhost:3000/auth/login?message=" + encodeURIComponent("E-posta değişikliği talebi iptal edildi ve güvenliğiniz için tüm cihazlardaki oturumlarınız sonlandırıldı. Lütfen tekrar giriş yapın."));
+    }
+
+    return res.redirect("http://localhost:3000/auth/login?message=" + encodeURIComponent("İptal edilecek bekleyen bir e-posta değişikliği bulunamadı."));
+}
+
 const forgotPassword = async (req, res) => {
     const { emailOrUsername } = req.body;
     if (!emailOrUsername) {
@@ -268,5 +318,6 @@ module.exports = {
     logout,
     forgotPassword,
     resetPassword,
-    refreshToken
+    refreshToken,
+    cancelEmailChange
 }

@@ -37,6 +37,10 @@ const userSchema = new mongoose.Schema({
     refreshToken: {
         type: String,
         default: null
+    },
+    pendingEmail: {
+        type: String,
+        default: null
     }
 },{collection:"users",timestamps:true});
 
