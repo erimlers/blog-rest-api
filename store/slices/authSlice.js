@@ -130,6 +130,13 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         state.user = null;
         state.isAuthChecked = true;
+      })
+      // profileSlice'taki updateProfile.fulfilled tetiklendiğinde kullanıcının kendi verisini auth'ta da güncelle
+      .addCase('profile/updateProfile/fulfilled', (state, action) => {
+        const updatedUser = action.payload?.data;
+        if (state.user && updatedUser && state.user._id === updatedUser._id) {
+          state.user = { ...state.user, ...updatedUser };
+        }
       });
   },
 });

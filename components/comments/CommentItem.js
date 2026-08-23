@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import Link from "next/link";
 import { formatRelativeTime } from "../../lib/formatTime";
 import { User, MoreVertical, Edit2, Trash2, X, Check, Loader2, MessageSquareReply, ChevronDown, ChevronUp } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
@@ -140,16 +141,20 @@ export default function CommentItem({ comment, postId, isReply = false, replyToU
             <div className={`${avatarSize} rounded-full bg-muted flex items-center justify-center text-muted-foreground border border-border shadow-sm`}>
               <User className={avatarIconSize} />
             </div>
-          ) : comment.author?.profileImage ? (
-            <img 
-              src={`${apiUrl}${comment.author.profileImage}`} 
-              alt={comment.author.username} 
-              className={`${avatarSize} rounded-full object-cover border border-border shadow-sm`}
-            />
           ) : (
-            <div className={`${avatarSize} rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-bold border border-primary/20 shadow-sm`}>
-              {authorInitials.toUpperCase() || <User className={avatarIconSize} />}
-            </div>
+            <Link href={`/profile/${comment.author?.username}`}>
+              {comment.author?.profileImage ? (
+                <img 
+                  src={`${apiUrl}${comment.author.profileImage}`} 
+                  alt={comment.author.username} 
+                  className={`${avatarSize} rounded-full object-cover border border-border shadow-sm hover:opacity-80 transition-opacity`}
+                />
+              ) : (
+                <div className={`${avatarSize} rounded-full bg-primary/10 flex items-center justify-center text-primary text-sm font-bold border border-primary/20 shadow-sm hover:bg-primary/20 transition-colors`}>
+                  {authorInitials.toUpperCase() || <User className={avatarIconSize} />}
+                </div>
+              )}
+            </Link>
           )}
         </div>
 
@@ -161,14 +166,14 @@ export default function CommentItem({ comment, postId, isReply = false, replyToU
                 Bilinmeyen Kullanıcı
               </span>
             ) : (
-              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
-                <span className={`font-semibold text-foreground truncate leading-tight ${nameBase}`}>
+              <Link href={`/profile/${comment.author?.username}`} className="flex flex-col sm:flex-row sm:items-center sm:gap-2 group/author">
+                <span className={`font-semibold text-foreground truncate leading-tight group-hover/author:text-primary transition-colors ${nameBase}`}>
                   {comment.author?.name} {comment.author?.lastname}
                 </span>
-                <span className={`text-muted-foreground mt-0.5 sm:mt-0 ${usernameBase}`}>
+                <span className={`text-muted-foreground mt-0.5 sm:mt-0 group-hover/author:text-primary/70 transition-colors ${usernameBase}`}>
                   @{comment.author?.username}
                 </span>
-              </div>
+              </Link>
             )}
             
             <div className="flex items-center gap-2 sm:gap-3" ref={dropdownRef}>
@@ -211,9 +216,9 @@ export default function CommentItem({ comment, postId, isReply = false, replyToU
           {/* Yanıt Verilen Kişi Etiketi (Flat Reply) */}
           {isReply && replyToUser && !comment.isDeleted && (
              <div className="mb-1">
-               <span className="text-[11px] sm:text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full inline-block">
+               <Link href={`/profile/${replyToUser.username}`} className="text-[11px] sm:text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full inline-block hover:bg-primary/20 transition-colors">
                  @{replyToUser.username}
-               </span>
+               </Link>
              </div>
           )}
 

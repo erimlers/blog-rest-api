@@ -4,7 +4,7 @@ import ThemeToggle from "@components/ui/ThemeToggle";
 import { useSelector, useDispatch } from "react-redux";
 import { logoutUser } from "@store/slices/authSlice";
 import Link from "next/link";
-import { User, LogOut, ChevronDown, PenSquare } from "lucide-react";
+import { User, LogOut, ChevronDown, PenSquare, Settings } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 
 export default function DesktopNavbar() {
@@ -83,12 +83,20 @@ export default function DesktopNavbar() {
                     <span>Yazı Oluştur</span>
                   </Link>
                   <Link 
-                    href="/profile" 
+                    href={`/profile/${user.username}`} 
                     onClick={() => setIsDropdownOpen(false)}
                     className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted hover:text-primary transition-colors cursor-pointer"
                   >
                     <User className="w-4 h-4" />
                     <span>Profilim</span>
+                  </Link>
+                  <Link 
+                    href="/settings" 
+                    onClick={() => setIsDropdownOpen(false)}
+                    className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted hover:text-primary transition-colors cursor-pointer"
+                  >
+                    <Settings className="w-4 h-4" />
+                    <span>Ayarlar</span>
                   </Link>
                   <div className="w-full h-px bg-border my-1"></div>
                   <button 

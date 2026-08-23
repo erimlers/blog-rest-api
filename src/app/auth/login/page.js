@@ -3,15 +3,17 @@
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser, clearError } from "@store/slices/authSlice";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { Loader2 } from "lucide-react";
 
-export default function LoginPage() {
+function LoginContent() {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const dispatch = useDispatch();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const infoMessage = searchParams.get("message");
   
   const { isLoading, error, isAuthenticated, isAuthChecked } = useSelector((state) => state.auth);
 
@@ -54,6 +56,12 @@ export default function LoginPage() {
         {error && (
           <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-sm text-center">
             {error}
+          </div>
+        )}
+
+        {infoMessage && !error && (
+          <div className="mb-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl text-blue-500 text-sm text-center">
+            {infoMessage}
           </div>
         )}
 
@@ -108,5 +116,17 @@ export default function LoginPage() {
 
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-[calc(100vh-10rem)] flex items-center justify-center">
+        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   );
 }

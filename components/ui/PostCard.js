@@ -1,15 +1,18 @@
 import Link from 'next/link';
-import { Heart, MessageCircle } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Heart, MessageCircle, User } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleLikePost } from '../../store/slices/postSlice';
 import { formatRelativeTime } from '../../lib/formatTime';
 
 export default function PostCard({ post }) {
   const dispatch = useDispatch();
+  const router = useRouter();
   const { user, isAuthenticated } = useSelector(state => state.auth);
 
   const handleLike = (e) => {
     e.preventDefault();
+    e.stopPropagation();
     if (!isAuthenticated || !user) {
       alert("Beğenmek için giriş yapmalısınız.");
       return;
@@ -25,10 +28,10 @@ export default function PostCard({ post }) {
   const imageUrl = post.image ? `${apiUrl}${post.image}` : null;
 
   return (
-    <Link 
-      href={`/posts/${post._id}`} 
-      className="group flex flex-col bg-background border border-border rounded-2xl overflow-hidden hover:shadow-lg transition-colors duration-500 ease-in-out"
+    <div 
+      className="group flex flex-col bg-background border border-border rounded-2xl overflow-hidden hover:shadow-lg transition-colors duration-500 ease-in-out relative"
     >
+      <Link href={`/posts/${post._id}`} className="absolute inset-0 z-0" aria-label={post.title}></Link>
       {/* Kapak Görseli */}
       {imageUrl ? (
         <div className="w-full h-48 sm:h-56 overflow-hidden bg-muted">
@@ -64,28 +67,31 @@ export default function PostCard({ post }) {
         {/* Yazar ve Etkileşim (Alt Kısım) */}
         <div className="flex items-center justify-between pt-5 border-t border-border mt-auto">
           
-          {/* Yazar Bilgisi */}
-          <div className="flex items-center gap-3 flex-1 min-w-0">
+          {/* Yazar Bilgisi (Tıklanabilir) */}
+          <Link href={`/profile/${post.author?.username}`} className="flex items-center gap-2 group/author shrink-0 z-10 relative" onClick={(e) => e.stopPropagation()}>
             {post.author?.profileImage ? (
               <img 
                 src={`${apiUrl}${post.author.profileImage}`} 
-                alt={post.author.username} 
-                className="w-9 h-9 rounded-full object-cover border border-border flex-shrink-0"
+                alt={post.author?.username} 
+                className="w-8 h-8 rounded-full object-cover border border-border group-hover/author:border-primary/50 transition-colors"
               />
             ) : (
-              <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold border border-primary/20 flex-shrink-0">
-                {authorInitials.toUpperCase()}
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary border border-primary/20 group-hover/author:border-primary/50 transition-colors">
+                <User className="w-4 h-4" />
               </div>
             )}
-            <div className="flex flex-col min-w-0 pr-2">
-              <span className="text-sm font-semibold text-foreground leading-tight truncate">
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold text-foreground group-hover/author:text-primary transition-colors leading-none">
                 {post.author?.name} {post.author?.lastname}
               </span>
+              <span className="text-xs text-muted-foreground mt-1">
+                @{post.author?.username}
+              </span>
             </div>
-          </div>
+          </Link>
 
           {/* Etkileşim Butonları */}
-          <div className="flex items-center gap-4 text-muted-foreground flex-shrink-0">
+          <div className="flex items-center gap-4 text-muted-foreground flex-shrink-0 z-10 relative">
             <button 
               onClick={handleLike}
               className={`flex items-center gap-1.5 transition-colors ${isLiked ? 'text-red-500' : 'hover:text-red-500'} cursor-pointer`}
@@ -96,16 +102,16 @@ export default function PostCard({ post }) {
               </span>
             </button>
 
-            <div className="flex items-center gap-1.5 hover:text-primary transition-colors">
+            <button onClick={(e) => { e.stopPropagation(); router.push(`/posts/${post._id}#comments`); }} className="flex items-center gap-1.5 hover:text-primary transition-colors cursor-pointer">
               <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="text-xs sm:text-sm font-medium">
                 0
               </span>
-            </div>
+            </button>
           </div>
           
         </div>
       </div>
-    </Link>
+    </div>
   );
 }
