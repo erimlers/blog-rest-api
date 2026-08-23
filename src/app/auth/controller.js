@@ -40,7 +40,16 @@ const register = async(req,res) =>{
     
     await sendMail(mailOptions);
 
-    return new Response({username,email},"Kayıt başarılı. Doğrulama e-postası adresinize gönderildi.").created(res);
+    return new Response({
+      user: {
+        _id: savedUser._id,
+        name: savedUser.name,
+        lastname: savedUser.lastname,
+        username: savedUser.username,
+        email: savedUser.email,
+        profileImage: savedUser.profileImage
+      }
+    },"Kayıt başarılı. Doğrulama e-postası adresinize gönderildi.").created(res);
 }
 
 const verifyMail = async(req,res) =>{
@@ -93,7 +102,14 @@ const login = async(req,res) =>{
     });
 
     return new Response({
-        user: { id: user._id, name: user.name, email: user.email }
+        user: { 
+            _id: user._id, 
+            name: user.name, 
+            lastname: user.lastname,
+            username: user.username,
+            email: user.email,
+            profileImage: user.profileImage
+        }
     }, "Giriş başarılı.").success(res);
 }
 
