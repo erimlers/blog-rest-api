@@ -1,6 +1,9 @@
 const Post = require("./model");
+const User = require("../users/model");
+const Notification = require("../notifications/model");
 const APIError = require("../../utils/error");
 const Response = require("../../utils/response");
+const socketConfig = require("../../socket");
 
 const createPost = async(req,res) => {
     const {title,content,tags} = req.body;
@@ -13,6 +16,42 @@ const createPost = async(req,res) => {
     })
 
     await newPost.save();
+
+    // Takipçilere bildirim gönder
+    try {
+        const author = await User.findById(req.user._id);
+        if (author && author.followers && author.followers.length > 0) {
+            const notifications = author.followers.map(followerId => ({
+                recipient: followerId,
+                sender: author._id,
+                type: "new_post",
+                post: newPost._id
+            }));
+            const insertedNotifications = await Notification.insertMany(notifications);
+            
+            // Socket üzerinden bildirim fırlat
+            const io = socketConfig.getIO();
+            insertedNotifications.forEach(notif => {
+                // Sadece gerekli bilgileri frontend'e aktar
+                io.to(notif.recipient.toString()).emit("new_notification", {
+                    _id: notif._id,
+                    sender: {
+                        _id: author._id,
+                        username: author.username,
+                        profileImage: author.profileImage
+                    },
+                    post: {
+                        _id: newPost._id,
+                        title: newPost.title
+                    },
+                    isRead: false,
+                    type: "new_post"
+                });
+            });
+        }
+    } catch (error) {
+        console.error("Bildirimler gönderilirken hata oluştu:", error);
+    }
 
     return new Response(newPost,"Post başarıyla oluşturuldu.").created(res);
 }
