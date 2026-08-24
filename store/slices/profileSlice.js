@@ -32,6 +32,19 @@ export const updateProfile = createAsyncThunk(
   }
 );
 
+// Profil Takip Et / Takipten Çık
+export const toggleFollow = createAsyncThunk(
+  "profile/toggleFollow",
+  async (username, { rejectWithValue }) => {
+    try {
+      const response = await api.post(ENDPOINTS.USERS.FOLLOW(username));
+      return response;
+    } catch (error) {
+      return rejectWithValue(error.message || "Takip işlemi başarısız.");
+    }
+  }
+);
+
 const initialState = {
   currentViewedProfile: null, // Şuan incelenen profil (public)
   isLoading: false,

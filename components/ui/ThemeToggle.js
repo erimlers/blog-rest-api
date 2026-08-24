@@ -2,7 +2,7 @@
 
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, ChevronDown } from "lucide-react";
 
 export default function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -14,21 +14,23 @@ export default function ThemeToggle() {
   }, []);
 
   if (!mounted) {
-    // Mount olana kadar butonun yerini tutacak bir iskelet dön (Flicker engelleme)
-    return <div className="w-9 h-9 rounded-md bg-muted animate-pulse" />;
+    // Mount olana kadar iskelet dön
+    return <div className="w-32 h-10 rounded-xl bg-muted animate-pulse" />;
   }
 
   return (
-    <button
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="p-2 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-all duration-300 ease-in-out focus:outline-none cursor-pointer"
-      aria-label="Temayı değiştir"
-    >
-      {theme === "dark" ? (
-        <Sun className="w-5 h-5 transition-transform duration-300 ease-in-out rotate-0 scale-100" />
-      ) : (
-        <Moon className="w-5 h-5 transition-transform duration-300 ease-in-out rotate-0 scale-100" />
-      )}
-    </button>
+    <div className="relative inline-block">
+      <select
+        value={theme === "system" ? "light" : theme} // Eğer sistem seçiliyse varsayılan olarak açık gibi göster
+        onChange={(e) => setTheme(e.target.value)}
+        className="appearance-none bg-background border border-border text-foreground text-sm font-medium rounded-xl px-4 py-2.5 pr-10 hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors cursor-pointer shadow-sm w-36"
+      >
+        <option value="light">Açık Tema</option>
+        <option value="dark">Koyu Tema</option>
+      </select>
+      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-muted-foreground">
+        <ChevronDown className="w-4 h-4" />
+      </div>
+    </div>
   );
 }

@@ -3,7 +3,7 @@
 import { useSelector, useDispatch } from "react-redux";
 import { logoutUser } from "@store/slices/authSlice";
 import Link from "next/link";
-import { User, LogOut, ChevronDown, PenSquare, Settings, Loader2, PenTool } from "lucide-react";
+import { User, LogOut, ChevronDown, PenSquare, Settings, Loader2, PenTool, LayoutDashboard } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import NavbarSearch from "./NavbarSearch";
 
@@ -98,6 +98,14 @@ export default function DesktopNavbar() {
                     >
                       <User className="w-4 h-4" />
                       <span>Profilim</span>
+                    </Link>
+                    <Link 
+                      href="/dashboard" 
+                      onClick={() => setIsDropdownOpen(false)}
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted hover:text-primary transition-colors cursor-pointer"
+                    >
+                      <LayoutDashboard className="w-4 h-4" />
+                      <span>Yönetim Paneli</span>
                     </Link>
                     <Link 
                       href="/settings" 

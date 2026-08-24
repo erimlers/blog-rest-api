@@ -1,19 +1,25 @@
 "use client";
 
-import { Menu, X, User, LogOut, PenSquare, Settings, Loader2, PenTool } from "lucide-react";
+import { Menu, X, User, LogOut, Settings, Loader2, PenTool, Search, Home, LayoutDashboard } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { logoutUser } from "@store/slices/authSlice";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import NavbarSearch from "./NavbarSearch";
 
 export default function MobileNavbar() {
   const { isAuthenticated, user, isAuthChecked } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
+  
+  // State Yönetimi
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  
+  const profileDropdownRef = useRef(null);
 
-  // Menü açıkken arkaplanı kaydırmayı engelle
+  // Sol menü açıkken arkaplanı kaydırmayı engelle
   useEffect(() => {
     if (isMenuOpen) {
       document.body.style.overflow = "hidden";
@@ -25,143 +31,179 @@ export default function MobileNavbar() {
     };
   }, [isMenuOpen]);
 
+  // Profil menüsü dışına tıklandığında kapatma
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
+        setIsProfileOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const handleLogout = async () => {
     setIsLoggingOut(true);
-    // Yükleniyor animasyonunun gözükmesi için yapay bir gecikme (800ms)
     await new Promise((resolve) => setTimeout(resolve, 800));
     await dispatch(logoutUser());
+    setIsProfileOpen(false);
     setIsMenuOpen(false);
     setIsLoggingOut(false);
   };
 
+  const closeAllMenus = () => {
+    setIsMenuOpen(false);
+    setIsProfileOpen(false);
+    setIsSearchOpen(false);
+  };
+
   return (
     <>
-      <nav className="w-full h-16 border-b border-border bg-background sticky top-0 z-50 transition-colors duration-500 ease-in-out">
+      <nav className="w-full h-16 border-b border-border bg-background relative z-40 transition-colors duration-500 ease-in-out">
         <div className="container mx-auto px-4 h-full flex items-center justify-between">
           
-          {/* Sol Alan: Logo */}
-          <div className="flex shrink-0 items-center justify-start">
-            <Link href="/" onClick={() => setIsMenuOpen(false)} className="text-xl font-bold tracking-tight text-primary cursor-pointer hover:opacity-80 transition-opacity duration-300">
+          {/* Sol Alan: Menü İkonu & Logo */}
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => {
+                setIsMenuOpen(!isMenuOpen);
+                setIsProfileOpen(false);
+                setIsSearchOpen(false);
+              }}
+              className="p-1 -ml-1 text-muted-foreground hover:text-foreground focus:outline-none"
+            >
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+            <Link href="/" onClick={closeAllMenus} className="text-2xl font-bold tracking-tight text-primary cursor-pointer hover:opacity-80 transition-opacity">
               <span className="text-foreground">&lt;</span>Blog<span className="text-foreground">/&gt;</span>
             </Link>
           </div>
 
-          {/* Sağ Alan: Menü */}
-          <div className="flex items-center gap-2">
-            <button 
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-all duration-300 ease-in-out focus:outline-none"
-            >
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      {/* Mobil Menü Overlay */}
-      {isMenuOpen && (
-        <div className="fixed inset-0 z-40 bg-background pt-16 animate-in slide-in-from-top-full duration-300">
-          <div className="container mx-auto px-4 py-8 flex flex-col h-full overflow-y-auto">
-            
-            {/* Navigasyon Linkleri */}
-            <div className="flex flex-col gap-6 text-center mb-8">
-              {/* Arama Çubuğu (Giriş Yapmış Kullanıcı) */}
-              {isAuthenticated && (
-                <div className="mb-4">
-                  <NavbarSearch />
-                </div>
-              )}
-              
-              <Link href="/about" onClick={() => setIsMenuOpen(false)} className="text-lg font-medium text-muted-foreground hover:text-primary transition-colors cursor-pointer py-2">Hakkımızda</Link>
-            </div>
-
-            <div className="w-full h-px bg-border mb-8"></div>
-
-            {/* Auth Bölümü */}
-            <div className="pt-6">
-              {!isAuthChecked ? (
-                <div className="w-full flex flex-col gap-3">
-                  <div className="w-full h-11 bg-muted rounded-xl animate-pulse"></div>
-                  <div className="w-full h-11 bg-muted rounded-xl animate-pulse"></div>
-                </div>
-              ) : isAuthenticated ? (
-                <div className="flex flex-col gap-4">
-                  <div className="flex items-center gap-3 px-4 py-3 bg-muted/50 rounded-xl">
+          {/* Sağ Alan: Arama İkonu & Profil */}
+          <div className="flex items-center gap-3">
+            {!isAuthChecked ? (
+              <div className="w-8 h-8 rounded-full bg-muted animate-pulse"></div>
+            ) : isAuthenticated ? (
+              <>
+                {/* Arama İkonu */}
+                <button 
+                  onClick={() => {
+                    setIsSearchOpen(!isSearchOpen);
+                    setIsProfileOpen(false);
+                    setIsMenuOpen(false);
+                  }}
+                  className={`p-2 rounded-full focus:outline-none transition-colors ${isSearchOpen ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                >
+                  <Search className="w-5 h-5" />
+                </button>
+                
+                {/* Profil Resmi & Dropdown */}
+                <div className="relative" ref={profileDropdownRef}>
+                  <button 
+                    onClick={() => {
+                      setIsProfileOpen(!isProfileOpen);
+                      setIsSearchOpen(false);
+                      setIsMenuOpen(false);
+                    }}
+                    className="focus:outline-none rounded-full overflow-hidden border border-transparent hover:border-border transition-colors"
+                  >
                     {user?.profileImage ? (
-                      <img src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || "http://localhost:8080"}${user.profileImage}`} alt={user.username} className="w-12 h-12 rounded-full object-cover border border-border shrink-0" />
+                      <img src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || "http://localhost:8080"}${user.profileImage}`} alt={user.username} className="w-8 h-8 rounded-full object-cover shrink-0" />
                     ) : (
-                      <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm border border-primary/20 shrink-0">
-                        {((user?.name?.charAt(0) || '') + (user?.lastname?.charAt(0) || '')).toUpperCase() || <User className="w-5 h-5" />}
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs shrink-0">
+                        {((user?.name?.charAt(0) || '') + (user?.lastname?.charAt(0) || '')).toUpperCase() || <User className="w-4 h-4" />}
                       </div>
                     )}
-                    <div className="flex flex-col min-w-0">
-                      <p className="text-sm font-semibold text-foreground truncate">
-                        {user?.name} {user?.lastname}
-                      </p>
-                      <p className="text-xs text-muted-foreground truncate">@{user?.username}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-col gap-2">
-                    <Link 
-                      href="/posts/create" 
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center justify-center gap-3 w-full px-4 py-3.5 mb-2 text-sm font-bold bg-primary text-primary-foreground rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-colors"
-                    >
-                      <PenTool className="w-5 h-5" />
-                      <span>Yeni Yazı Oluştur</span>
-                    </Link>
-                    <Link 
-                      href={`/profile/${user.username}`} 
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-foreground hover:bg-muted hover:text-primary transition-colors cursor-pointer rounded-xl"
-                    >
-                      <User className="w-4 h-4" />
-                      Profilim
-                    </Link>
-                    <Link 
-                      href="/settings" 
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center justify-center gap-2 w-full px-4 py-3 text-sm font-medium text-foreground bg-muted hover:bg-muted/80 rounded-xl transition-colors"
-                    >
-                      <Settings className="w-4 h-4" />
-                      Ayarlar
-                    </Link>
-                    <button 
-                      onClick={handleLogout}
-                      disabled={isLoggingOut}
-                      className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-red-500 bg-red-500/10 hover:bg-red-500/20 rounded-xl transition-colors disabled:opacity-50"
-                    >
-                      <span className="font-medium">{isLoggingOut ? "Çıkış Yapılıyor..." : "Çıkış Yap"}</span>
-                      {isLoggingOut ? <Loader2 className="w-4 h-4 animate-spin" /> : <LogOut className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex flex-col gap-3">
-                  <Link 
-                    href="?auth=login"
-                    scroll={false} 
-                    onClick={() => setIsMenuOpen(false)}
-                    className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium bg-primary text-primary-foreground rounded-xl shadow-lg shadow-primary/20 hover:bg-primary/90 transition-colors"
-                  >
-                    Giriş Yap
-                  </Link>
-                  <Link 
-                    href="?auth=register"
-                    scroll={false} 
-                    onClick={() => setIsMenuOpen(false)}
-                    className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-foreground bg-muted hover:bg-muted/80 rounded-xl transition-colors"
-                  >
-                    Kayıt Ol
-                  </Link>
-                </div>
-              )}
-            </div>
+                  </button>
 
+                  {/* Profil Açılır Menüsü */}
+                  {isProfileOpen && (
+                    <div className="absolute right-0 mt-3 w-48 bg-background border border-border rounded-xl shadow-lg py-2 z-50 transform origin-top-right transition-all duration-200 ease-out animate-in fade-in zoom-in-95">
+                      <Link 
+                        href={`/profile/${user.username}`} 
+                        onClick={closeAllMenus}
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted hover:text-primary transition-colors cursor-pointer"
+                      >
+                        <User className="w-4 h-4" />
+                        <span>Profilim</span>
+                      </Link>
+                      <Link 
+                        href="/dashboard" 
+                        onClick={closeAllMenus}
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted hover:text-primary transition-colors cursor-pointer"
+                      >
+                        <LayoutDashboard className="w-4 h-4" />
+                        <span>Yönetim Paneli</span>
+                      </Link>
+                      <Link 
+                        href="/settings" 
+                        onClick={closeAllMenus}
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted hover:text-primary transition-colors cursor-pointer"
+                      >
+                        <Settings className="w-4 h-4" />
+                        <span>Ayarlar</span>
+                      </Link>
+                      <div className="w-full h-px bg-border my-1"></div>
+                      <button 
+                        onClick={handleLogout}
+                        disabled={isLoggingOut}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer disabled:opacity-50"
+                      >
+                        {isLoggingOut ? <Loader2 className="w-4 h-4 animate-spin" /> : <LogOut className="w-4 h-4" />}
+                        <span>{isLoggingOut ? "Çıkış Yapılıyor..." : "Çıkış Yap"}</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Link href="?auth=login" scroll={false} onClick={closeAllMenus} className="px-3 py-1.5 text-sm font-medium bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-all">
+                  Giriş Yap
+                </Link>
+              </div>
+            )}
           </div>
         </div>
-      )}
+
+        {/* Tepeden İnen Arama Çubuğu (Giriş Yapmışken) */}
+        {isSearchOpen && isAuthenticated && (
+          <div className="absolute top-16 left-0 w-full bg-background border-b border-border shadow-md px-4 py-3 animate-in slide-in-from-top-4 duration-300 z-40">
+            <NavbarSearch />
+          </div>
+        )}
+      </nav>
+
+      {/* Arkaplan Karartma */}
+      <div 
+        className={`fixed inset-0 top-16 z-[45] bg-black/40 transition-opacity duration-500 ease-in-out ${isMenuOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+        onClick={closeAllMenus}
+      ></div>
+      
+      {/* Sol Panel (Sidebar) */}
+      <div 
+        className={`fixed inset-y-0 top-16 left-0 z-[50] w-[65vw] max-w-[280px] bg-background border-r border-border shadow-2xl flex flex-col transform transition-transform duration-500 ease-in-out ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
+      >
+        <div className="flex flex-col gap-2 p-4 text-left mt-2">
+          <Link 
+            href="/" 
+            onClick={closeAllMenus} 
+            className="flex items-center gap-4 px-4 py-3 text-base font-medium text-foreground hover:bg-muted hover:text-primary transition-colors rounded-xl"
+          >
+            <Home className="w-5 h-5 text-primary" />
+            <span>Anasayfa</span>
+          </Link>
+          
+          <Link 
+            href="/posts/create" 
+            onClick={closeAllMenus}
+            className="flex items-center gap-4 px-4 py-3 text-base font-medium text-foreground hover:bg-muted hover:text-primary transition-colors rounded-xl"
+          >
+            <PenTool className="w-5 h-5 text-primary" />
+            <span>Yazı Oluştur</span>
+          </Link>
+        </div>
+      </div>
     </>
   );
 }

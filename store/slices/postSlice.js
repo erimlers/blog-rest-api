@@ -83,6 +83,36 @@ export const fetchPostById = createAsyncThunk(
   }
 );
 
+// Yazı Güncelle (Resim içerdiği için FormData kullanılmalı)
+export const updatePost = createAsyncThunk(
+  "posts/updatePost",
+  async ({ postId, formData }, { rejectWithValue }) => {
+    try {
+      const response = await api.patch(ENDPOINTS.POSTS.UPDATE(postId), formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return response.data || response;
+    } catch (error) {
+      return rejectWithValue(error.message || "Yazı güncellenirken bir hata oluştu.");
+    }
+  }
+);
+
+// Yazı Sil
+export const deletePost = createAsyncThunk(
+  "posts/deletePost",
+  async (postId, { rejectWithValue }) => {
+    try {
+      await api.delete(ENDPOINTS.POSTS.DELETE(postId));
+      return postId;
+    } catch (error) {
+      return rejectWithValue(error.message || "Yazı silinirken bir hata oluştu.");
+    }
+  }
+);
+
 // Bir postun yorumlarını getir
 export const fetchComments = createAsyncThunk(
   "posts/fetchComments",
@@ -228,6 +258,25 @@ const postSlice = createSlice({
       .addCase(fetchPostById.rejected, (state, action) => {
         state.isCurrentPostLoading = false;
         state.error = action.payload;
+      })
+
+      // --- updatePost ---
+      .addCase(updatePost.fulfilled, (state, action) => {
+        const updatedPost = action.payload;
+        const index = state.posts.findIndex(p => p._id === updatedPost._id);
+        if (index !== -1) {
+          state.posts[index] = updatedPost;
+        }
+        if (state.currentPost && state.currentPost._id === updatedPost._id) {
+          state.currentPost = updatedPost;
+        }
+      })
+
+      // --- deletePost ---
+      .addCase(deletePost.fulfilled, (state, action) => {
+        const deletedPostId = action.payload;
+        state.posts = state.posts.filter(p => p._id !== deletedPostId);
+        state.pagination.totalPosts = Math.max(0, state.pagination.totalPosts - 1);
       })
 
       // --- fetchComments ---

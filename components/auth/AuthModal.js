@@ -30,12 +30,12 @@ export default function AuthModal() {
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       {/* Arkaplan Karartma Animasyonu */}
       <div 
-        className="absolute inset-0 bg-background/80 animate-in fade-in duration-1000 ease-in-out" 
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-in fade-in duration-700 ease-out" 
         onClick={closeModal}
       ></div>
       
-      {/* Sadece Yumuşak Fade-in (Geçiş) Animasyonu */}
-      <div className="relative z-10 w-full max-w-md bg-muted border border-border rounded-3xl shadow-2xl overflow-hidden animate-in fade-in duration-1000 ease-in-out">
+      {/* Yumuşak Süzülerek Gelen Modal Animasyonu */}
+      <div className="relative z-10 w-full max-w-md bg-background border border-border rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 slide-in-from-bottom-12 duration-700 ease-out">
         <button 
           onClick={closeModal}
           className="absolute top-4 right-4 p-2 text-muted-foreground hover:text-foreground hover:bg-background rounded-full transition-colors z-20"

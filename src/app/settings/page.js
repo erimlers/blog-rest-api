@@ -190,13 +190,6 @@ export default function SettingsPage() {
             <Palette className="w-5 h-5" />
             Görünüm
           </button>
-          <button 
-            onClick={() => setActiveTab("posts")}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${activeTab === 'posts' ? 'bg-primary text-primary-foreground shadow-sm' : 'hover:bg-muted text-muted-foreground hover:text-foreground'}`}
-          >
-            <Settings className="w-5 h-5" />
-            Yazı Ayarları
-          </button>
         </div>
 
         {/* Sağ İçerik Alanı */}
@@ -296,12 +289,12 @@ export default function SettingsPage() {
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold text-foreground">E-posta Adresi</h3>
                     {!isChangingEmail ? (
-                      <div className="flex items-center justify-between p-4 bg-muted/50 rounded-xl border border-border">
-                        <span className="text-foreground font-medium">{currentUser?.email}</span>
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-muted/50 rounded-xl border border-border gap-4">
+                        <span className="text-foreground font-medium break-all">{currentUser?.email}</span>
                         <button 
                           type="button"
                           onClick={() => setIsChangingEmail(true)}
-                          className="text-sm font-medium text-primary hover:underline cursor-pointer"
+                          className="text-sm font-medium text-primary hover:underline cursor-pointer flex-shrink-0"
                         >
                           E-posta Adresini Değiştir
                         </button>
@@ -390,15 +383,6 @@ export default function SettingsPage() {
                       <p className="text-sm text-muted-foreground mt-1">Uygulama temasını karanlık veya aydınlık mod olarak değiştirin.</p>
                     </div>
                     <ThemeToggle />
-                  </div>
-                </div>
-              )}
-
-              {activeTab === "posts" && (
-                <div className="space-y-8 animate-in fade-in duration-300">
-                  <h2 className="text-xl font-bold text-foreground border-b border-border pb-4">Yazı Ayarları</h2>
-                  <div className="p-8 text-center bg-muted/30 rounded-xl border border-border border-dashed">
-                    <p className="text-muted-foreground">Yazı ayarları şu an için yapım aşamasındadır. Yakında eklenecek!</p>
                   </div>
                 </div>
               )}

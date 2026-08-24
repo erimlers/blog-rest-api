@@ -15,7 +15,7 @@ export default function FilterBar() {
   ];
 
   return (
-    <div className="flex items-center gap-6 border-b border-border/60 mb-6 transition-colors duration-500 ease-in-out">
+    <div className="sticky top-0 md:top-16 z-30 bg-background flex items-center gap-6 border-b border-border/60 mb-6 pt-4 pb-1 transition-colors duration-500 ease-in-out">
       {tabs.map((tab) => (
         <button
           key={tab.id}

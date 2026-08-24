@@ -34,7 +34,7 @@ export default function PostDetailPage() {
     }
   }, [id, dispatch]);
 
-  if (isCurrentPostLoading) {
+  if (isCurrentPostLoading || (!currentPost && !error)) {
     return (
       <div className="min-h-[calc(100vh-10rem)] flex flex-col items-center justify-center gap-4">
         <Loader2 className="w-10 h-10 animate-spin text-primary" />
@@ -43,7 +43,7 @@ export default function PostDetailPage() {
     );
   }
 
-  if (error || !currentPost) {
+  if (error) {
     return (
       <div className="min-h-[calc(100vh-10rem)] flex flex-col items-center justify-center gap-4">
         <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-2xl text-center max-w-md">
