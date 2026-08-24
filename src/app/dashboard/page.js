@@ -27,15 +27,8 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-300">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground">Yönetim Paneli</h1>
-          <p className="text-muted-foreground mt-2">Yazılarını ve istatistiklerini buradan yönetebilirsin.</p>
-        </div>
-        
-        <div className="bg-card p-6 sm:p-8 rounded-2xl border border-border shadow-sm">
-          <PostDashboard />
-        </div>
+      <div className="max-w-5xl mx-auto animate-in fade-in duration-300">
+        <PostDashboard />
       </div>
     </div>
   );
