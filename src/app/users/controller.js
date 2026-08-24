@@ -164,8 +164,11 @@ const getProfile = async(req,res) => {
 const getPublicProfileByUsername = async (req, res) => {
     const { username } = req.params;
     
-    // Şifre vb. gizli alanları göndermiyoruz
-    const user = await User.findOne({ username }).select("-password -email -isVerified");
+    // Şifre vb. gizli alanları göndermiyoruz, takipçileri ve takip edilenleri çekiyoruz
+    const user = await User.findOne({ username })
+        .select("-password -email -isVerified")
+        .populate("followers", "username name profileImage")
+        .populate("following", "username name profileImage");
     
     if (!user) {
         throw new APIError("Kullanıcı bulunamadı.", 404);
@@ -174,8 +177,43 @@ const getPublicProfileByUsername = async (req, res) => {
     return new Response(user, "Kullanıcı profili getirildi.").success(res);
 }
 
+const toggleFollowUser = async (req, res) => {
+    const { username } = req.params;
+    const currentUserId = req.user._id;
+
+    const targetUser = await User.findOne({ username });
+    if (!targetUser) {
+        throw new APIError("Kullanıcı bulunamadı.", 404);
+    }
+
+    if (targetUser._id.toString() === currentUserId.toString()) {
+        throw new APIError("Kendinizi takip edemezsiniz.", 400);
+    }
+
+    const currentUser = await User.findById(currentUserId);
+
+    const isFollowing = currentUser.following.includes(targetUser._id);
+
+    if (isFollowing) {
+        // Takipten çık
+        currentUser.following.pull(targetUser._id);
+        targetUser.followers.pull(currentUser._id);
+    } else {
+        // Takip et
+        currentUser.following.push(targetUser._id);
+        targetUser.followers.push(currentUser._id);
+    }
+
+    await currentUser.save();
+    await targetUser.save();
+
+    const message = isFollowing ? "Takipten çıkıldı." : "Takip edildi.";
+    return new Response(null, message).success(res);
+}
+
 module.exports = {
     updateProfile,
     getProfile,
-    getPublicProfileByUsername
+    getPublicProfileByUsername,
+    toggleFollowUser
 }

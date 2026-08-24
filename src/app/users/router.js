@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const {updateProfile, getProfile, getPublicProfileByUsername} = require("./controller");
+const {updateProfile, getProfile, getPublicProfileByUsername, toggleFollowUser} = require("./controller");
 const {tokenCheck} = require("../../middlewares/auth");
 const upload = require("../../middlewares/upload");
 
@@ -8,5 +8,8 @@ router.patch("/profile", tokenCheck, upload.single("profileImage"), updateProfil
 
 // Herkese açık profil rotası
 router.get("/u/:username", getPublicProfileByUsername);
+
+// Takip etme/takipten çıkma rotası
+router.post("/u/:username/follow", tokenCheck, toggleFollowUser);
 
 module.exports = router;

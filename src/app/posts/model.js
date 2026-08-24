@@ -28,6 +28,10 @@ const postSchema = new mongoose.Schema({
     image: {
         type: String,
         default: null
+    },
+    views: {
+        type: Number,
+        default: 0
     }
 },{collection:"posts",timestamps:true});
 

@@ -141,6 +141,10 @@ const getPostById = async(req,res) => {
         throw new APIError("Post bulunamadı.", 404);
     }
     
+    // Görüntülenme sayısını artır
+    post.views += 1;
+    await post.save();
+    
     return new Response(post, "Post başarıyla getirildi.").success(res);
 }
 

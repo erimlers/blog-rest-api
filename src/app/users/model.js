@@ -41,7 +41,15 @@ const userSchema = new mongoose.Schema({
     pendingEmail: {
         type: String,
         default: null
-    }
+    },
+    followers: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }],
+    following: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }]
 },{collection:"users",timestamps:true});
 
 const User = mongoose.model("User",userSchema);
