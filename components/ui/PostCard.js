@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Heart, MessageCircle, User } from 'lucide-react';
+import { Heart, MessageCircle, User, Bookmark } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleLikePost } from '../../store/slices/postSlice';
+import { toggleSavePost } from '../../store/slices/authSlice';
 import { formatRelativeTime } from '../../lib/formatTime';
 import { stripMarkdown } from '../../lib/stripMarkdown';
 
@@ -21,7 +22,18 @@ export default function PostCard({ post }) {
     dispatch(toggleLikePost(post._id));
   };
 
+  const handleSave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isAuthenticated || !user) {
+      alert("Kaydetmek için giriş yapmalısınız.");
+      return;
+    }
+    dispatch(toggleSavePost(post._id));
+  };
+
   const isLiked = user && post.likes?.includes(user._id || user.id);
+  const isSaved = user && user.savedPosts?.includes(post._id);
   const formattedDate = formatRelativeTime(post.createdAt);
   
   const authorInitials = (post.author?.name?.charAt(0) || '') + (post.author?.lastname?.charAt(0) || '');
@@ -96,6 +108,14 @@ export default function PostCard({ post }) {
               <span className="text-xs sm:text-sm font-medium">
                 {post.comments?.length || 0}
               </span>
+            </button>
+
+            <button 
+              onClick={handleSave}
+              className={`flex items-center transition-colors ${isSaved ? 'text-primary' : 'hover:text-primary'} cursor-pointer`}
+              title="Kaydet"
+            >
+              <Bookmark className={`w-4 h-4 sm:w-5 sm:h-5 ${isSaved ? 'fill-current' : ''}`} />
             </button>
           </div>
         </div>

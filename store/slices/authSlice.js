@@ -57,6 +57,18 @@ export const checkAuth = createAsyncThunk(
   }
 );
 
+export const toggleSavePost = createAsyncThunk(
+  "auth/toggleSavePost",
+  async (postId, { rejectWithValue }) => {
+    try {
+      const response = await api.post(ENDPOINTS.POSTS.SAVE(postId));
+      return response.data; // { isSaved, savedPosts: [...] }
+    } catch (error) {
+      return rejectWithValue(error.message || "Yazı kaydedilemedi.");
+    }
+  }
+);
+
 // ─── Slice ve State ──────────────────────────────────────────────────
 
 const initialState = {
@@ -136,6 +148,13 @@ const authSlice = createSlice({
         const updatedUser = action.payload?.data;
         if (state.user && updatedUser && state.user._id === updatedUser._id) {
           state.user = { ...state.user, ...updatedUser };
+        }
+      })
+      
+      // --- TOGGLE SAVE POST ---
+      .addCase(toggleSavePost.fulfilled, (state, action) => {
+        if (state.user) {
+          state.user.savedPosts = action.payload.savedPosts;
         }
       });
   },

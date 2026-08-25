@@ -5,7 +5,7 @@ import { logoutUser } from "@store/slices/authSlice";
 import { fetchNotifications, markAsRead, markAllAsRead, deleteNotification, deleteAllNotifications } from "@store/slices/notificationSlice";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { User, LogOut, ChevronDown, Bell, CheckCheck, FileText, Settings, Loader2, PenTool, LayoutDashboard, Check, X } from "lucide-react";
+import { User, LogOut, ChevronDown, Bell, CheckCheck, FileText, Settings, Loader2, PenTool, LayoutDashboard, Check, X, Bookmark } from "lucide-react";
 import { useState, useRef, useEffect, Suspense } from "react";
 import NavbarSearch from "./NavbarSearch";  
 
@@ -224,6 +224,14 @@ export default function DesktopNavbar() {
                     >
                       <User className="w-4 h-4" />
                       <span>Profilim</span>
+                    </Link>
+                    <Link 
+                      href="/saved" 
+                      onClick={() => setIsDropdownOpen(false)}
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted hover:text-primary transition-colors cursor-pointer"
+                    >
+                      <Bookmark className="w-4 h-4" />
+                      <span>Kaydedilenler</span>
                     </Link>
                     <Link 
                       href="/dashboard" 

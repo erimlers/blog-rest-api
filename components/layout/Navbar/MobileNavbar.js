@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, X, User, LogOut, Settings, Loader2, PenTool, Search, Home, LayoutDashboard, Bell, CheckCheck, FileText, Check } from "lucide-react";
+import { Menu, X, User, LogOut, Settings, Loader2, PenTool, Search, Home, LayoutDashboard, Bell, CheckCheck, FileText, Check, Bookmark } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { logoutUser } from "@store/slices/authSlice";
 import { fetchNotifications, markAsRead, markAllAsRead, deleteNotification, deleteAllNotifications } from "@store/slices/notificationSlice";
@@ -262,6 +262,14 @@ export default function MobileNavbar() {
                         <span>Profilim</span>
                       </Link>
                       <Link 
+                        href="/saved" 
+                        onClick={closeAllMenus}
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted hover:text-primary transition-colors cursor-pointer"
+                      >
+                        <Bookmark className="w-4 h-4" />
+                        <span>Kaydedilenler</span>
+                      </Link>
+                      <Link 
                         href="/settings" 
                         onClick={closeAllMenus}
                         className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted hover:text-primary transition-colors cursor-pointer"
@@ -321,14 +329,24 @@ export default function MobileNavbar() {
           </Link>
           
           {isAuthenticated && (
-            <Link 
-              href="/dashboard" 
-              onClick={closeAllMenus}
-              className="flex items-center gap-4 px-4 py-3 text-base font-medium text-foreground hover:bg-muted hover:text-primary transition-colors rounded-xl"
-            >
-              <LayoutDashboard className="w-5 h-5 text-primary" />
-              <span>Yönetim Paneli</span>
-            </Link>
+            <>
+              <Link 
+                href="/saved" 
+                onClick={closeAllMenus}
+                className="flex items-center gap-4 px-4 py-3 text-base font-medium text-foreground hover:bg-muted hover:text-primary transition-colors rounded-xl"
+              >
+                <Bookmark className="w-5 h-5 text-primary" />
+                <span>Kaydedilenler</span>
+              </Link>
+              <Link 
+                href="/dashboard" 
+                onClick={closeAllMenus}
+                className="flex items-center gap-4 px-4 py-3 text-base font-medium text-foreground hover:bg-muted hover:text-primary transition-colors rounded-xl"
+              >
+                <LayoutDashboard className="w-5 h-5 text-primary" />
+                <span>Yönetim Paneli</span>
+              </Link>
+            </>
           )}
 
           <Link 
