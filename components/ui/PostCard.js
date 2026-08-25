@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Heart, MessageCircle, User, Bookmark } from 'lucide-react';
@@ -22,14 +23,27 @@ export default function PostCard({ post }) {
     dispatch(toggleLikePost(post._id));
   };
 
-  const handleSave = (e) => {
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+
+  const handleSave = async (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (!isAuthenticated || !user) {
       alert("Kaydetmek için giriş yapmalısınız.");
       return;
     }
-    dispatch(toggleSavePost(post._id));
+    
+    const wasSaved = user.savedPosts?.includes(post._id);
+    const resultAction = await dispatch(toggleSavePost(post._id));
+    
+    if (toggleSavePost.fulfilled.match(resultAction)) {
+      setToastMessage(!wasSaved ? "Yazı kaydedildi" : "Yazı kaydedilenlerden çıkarıldı");
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 4000);
+    }
   };
 
   const isLiked = user && post.likes?.includes(user._id || user.id);
@@ -42,8 +56,9 @@ export default function PostCard({ post }) {
   const cleanExcerpt = stripMarkdown(post.content);
 
   return (
-    <div className="group flex flex-col sm:flex-row bg-background hover:bg-muted/30 border-b border-border transition-colors duration-300 relative py-6">
-      <Link href={`/posts/${post._id}`} className="absolute inset-0 z-0" aria-label={post.title}></Link>
+    <>
+      <div className="group flex flex-col sm:flex-row bg-background hover:bg-muted/30 border-b border-border transition-colors duration-300 relative py-6">
+        <Link href={`/posts/${post._id}`} className="absolute inset-0 z-0" aria-label={post.title}></Link>
       
       {/* Sol İçerik: Yazar, Başlık, Özet, Etkileşimler */}
       <div className="flex flex-col flex-1 min-w-0 pr-0 sm:pr-6 order-2 sm:order-1">
@@ -132,5 +147,18 @@ export default function PostCard({ post }) {
         </div>
       )}
     </div>
+
+    {/* Toast Bildirimi */}
+    <div 
+      className={`fixed top-24 right-6 z-[100] transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) ${
+        showToast ? 'translate-x-0 opacity-100' : 'translate-x-[120%] opacity-0'
+      } bg-background/80 backdrop-blur-xl border border-border/60 text-foreground px-5 py-3 rounded-2xl shadow-2xl shadow-primary/10 flex items-center gap-3`}
+    >
+      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 shrink-0">
+        <Bookmark className="w-4 h-4 text-primary" fill="currentColor" />
+      </div>
+      <span className="text-sm font-medium tracking-wide">{toastMessage}</span>
+    </div>
+    </>
   );
 }

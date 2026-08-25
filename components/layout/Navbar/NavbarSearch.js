@@ -2,7 +2,7 @@
 
 import { Search, User, FileText, Loader2, X } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import api from "../../../lib/api";
 import ENDPOINTS from "../../../lib/endpoints";
 import Link from "next/link";
@@ -10,6 +10,7 @@ import Link from "next/link";
 export default function NavbarSearch() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   
   const [searchTerm, setSearchTerm] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -23,6 +24,13 @@ export default function NavbarSearch() {
     const q = searchParams.get("q");
     if (q) setSearchTerm(q);
   }, [searchParams]);
+
+  // Anasayfaya dönüldüğünde arama kutusunu sıfırla
+  useEffect(() => {
+    if (pathname === '/' || pathname === '/posts') {
+      setSearchTerm("");
+    }
+  }, [pathname]);
 
   // Dışarı tıklayınca menüyü kapat
   useEffect(() => {

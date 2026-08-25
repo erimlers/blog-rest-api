@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { updatePost, fetchPostById } from "../../../../../store/slices/postSlice";
 import { Loader2, ImagePlus, X, ArrowLeft } from "lucide-react";
 import dynamic from "next/dynamic";
-import EditorSkeleton from "../../../../components/skeletons/EditorSkeleton";
+import EditorSkeleton from "../../../../../components/skeletons/EditorSkeleton";
 import { useTheme } from "next-themes";
 import '@uiw/react-md-editor/markdown-editor.css';
 import '@uiw/react-markdown-preview/markdown.css';
