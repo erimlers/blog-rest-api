@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const {createPost,updatePost,deletePost,likePost,getAllPosts,getPostById} = require("./controller");
+const {createPost,updatePost,deletePost,likePost,toggleSavePost,getAllPosts,getPostById} = require("./controller");
 const {tokenCheck} = require("../../middlewares/auth");
 const postValidation = require("../../middlewares/validations/post.validation");
 const upload = require("../../middlewares/upload");
@@ -16,6 +16,8 @@ router.patch("/:postId", tokenCheck, upload.single("image"), postValidation.upda
 router.delete("/:postId", tokenCheck,postValidation.delete, deletePost);
 
 router.post("/:postId/like", tokenCheck, likePost);
+
+router.post("/:postId/save", tokenCheck, toggleSavePost);
 
 router.use("/:postId/comments", commentRouter);
 

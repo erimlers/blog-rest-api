@@ -252,11 +252,31 @@ const searchUsers = async (req, res) => {
     return new Response(users, "Kullanıcılar başarıyla bulundu.").success(res);
 }
 
+const getSavedPosts = async (req, res) => {
+    const user = await User.findById(req.user._id).populate({
+        path: 'savedPosts',
+        populate: {
+            path: 'author',
+            select: 'username name lastname profileImage'
+        }
+    });
+
+    if (!user) {
+        throw new APIError("Kullanıcı bulunamadı.", 404);
+    }
+
+    // Tercihen yeni eklenenler en üstte görünsün diye tersine çevirebiliriz
+    const savedPosts = user.savedPosts.reverse();
+
+    return new Response(savedPosts, "Kaydedilen yazılar başarıyla getirildi.").success(res);
+}
+
 module.exports = {
     updateProfile,
     getProfile,
     getPublicProfileByUsername,
     toggleFollowUser,
     checkUsernameAvailability,
-    searchUsers
+    searchUsers,
+    getSavedPosts
 }

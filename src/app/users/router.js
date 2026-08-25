@@ -1,10 +1,13 @@
 const router = require("express").Router();
-const {updateProfile, getProfile, getPublicProfileByUsername, toggleFollowUser, checkUsernameAvailability, searchUsers} = require("./controller");
+const {updateProfile, getProfile, getPublicProfileByUsername, toggleFollowUser, checkUsernameAvailability, searchUsers, getSavedPosts} = require("./controller");
 const {tokenCheck} = require("../../middlewares/auth");
 const upload = require("../../middlewares/upload");
 
 router.get("/profile", tokenCheck, getProfile);
 router.patch("/profile", tokenCheck, upload.single("profileImage"), updateProfile);
+
+// Kaydedilen Yazılar
+router.get("/saved-posts", tokenCheck, getSavedPosts);
 
 // Kullanıcı adı uygunluk kontrolü
 router.get("/check-username", tokenCheck, checkUsernameAvailability);

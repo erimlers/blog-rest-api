@@ -109,6 +109,34 @@ const likePost = async(req,res) => {
     }
 }
 
+const toggleSavePost = async (req, res) => {
+    const { postId } = req.params;
+    const post = await Post.findById(postId);
+    if (!post) {
+        throw new APIError("Post bulunamadı.", 404);
+    }
+    
+    const user = await User.findById(req.user._id);
+    if (!user) {
+        throw new APIError("Kullanıcı bulunamadı.", 404);
+    }
+
+    const index = user.savedPosts.findIndex(id => id.toString() === postId.toString());
+    let isSaved = false;
+    
+    if (index === -1) {
+        user.savedPosts.push(postId);
+        isSaved = true;
+    } else {
+        user.savedPosts.splice(index, 1);
+        isSaved = false;
+    }
+    
+    await user.save();
+    
+    return new Response({ isSaved, savedPosts: user.savedPosts }, isSaved ? "Post başarıyla kaydedildi." : "Post kaydedilenlerden çıkarıldı.").success(res);
+}
+
 const getAllPosts = async(req,res) => {
     const query = {};
 
@@ -192,6 +220,7 @@ module.exports = {
     updatePost,
     deletePost,
     likePost,
+    toggleSavePost,
     getAllPosts,
     getPostById
 }
