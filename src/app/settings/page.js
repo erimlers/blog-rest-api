@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { updateProfile, clearUpdateStatus } from "@store/slices/profileSlice";
 import { logoutUser } from "@store/slices/authSlice";
 import { useRouter } from "next/navigation";
 import { User, Settings, Lock, Upload, Loader2, Save, CheckCircle2, AlertCircle, Palette } from "lucide-react";
 import ThemeToggle from "@components/ui/ThemeToggle";
+import SettingsSkeleton from "@components/skeletons/SettingsSkeleton";
+import api from "@lib/api";
 
 export default function SettingsPage() {
   const { user: currentUser, isAuthenticated, isAuthChecked } = useSelector((state) => state.auth);
@@ -31,8 +33,85 @@ export default function SettingsPage() {
   const [previewImage, setPreviewImage] = useState(null);
   const [isChangingEmail, setIsChangingEmail] = useState(false);
   const [localError, setLocalError] = useState("");
+  
+  // Kullanıcı Adı Kontrolü İçin Stateler
+  const [usernameStatus, setUsernameStatus] = useState({ isChecking: false, isAvailable: null, message: "" });
+  const typingTimeoutRef = useRef(null);
+
+  // Değişiklikleri İzleme (Unsaved Changes)
+  const isDirty = (formData.name !== (currentUser?.name || "")) || 
+                  (formData.lastname !== (currentUser?.lastname || "")) || 
+                  (formData.username !== (currentUser?.username || "")) || 
+                  (selectedFile !== null) || 
+                  (formData.removeImage !== false);
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://localhost:8080";
+
+  // Sayfadan çıkış veya yenileme uyarısı
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = "Kaydetmediğiniz değişiklikler var. Çıkmak istiyor musunuz?";
+      }
+    };
+
+    const handleClick = (e) => {
+      if (!isDirty) return;
+      const target = e.target.closest("a");
+      if (target && target.href && !target.href.includes("/settings") && !target.href.startsWith("javascript") && !target.hasAttribute("download")) {
+        if (!window.confirm("Kaydetmediğiniz değişiklikler var. Sayfadan ayrılmak istiyor musunuz?")) {
+          e.preventDefault();
+        }
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    document.addEventListener("click", handleClick, { capture: true });
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      document.removeEventListener("click", handleClick, { capture: true });
+    };
+  }, [isDirty]);
+
+  // Username anlık kontrolü (Debounce)
+  useEffect(() => {
+    if (!formData.username) {
+      setUsernameStatus({ isChecking: false, isAvailable: null, message: "" });
+      return;
+    }
+
+    if (currentUser && formData.username === currentUser.username) {
+      setUsernameStatus({ isChecking: false, isAvailable: true, message: "" });
+      return;
+    }
+
+    setUsernameStatus(prev => ({ ...prev, isChecking: true }));
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    typingTimeoutRef.current = setTimeout(async () => {
+      try {
+        const data = await api.get(`/check-username?username=${encodeURIComponent(formData.username)}`);
+        setUsernameStatus({
+          isChecking: false,
+          isAvailable: data.isAvailable,
+          message: data.message
+        });
+      } catch (err) {
+        setUsernameStatus({ isChecking: false, isAvailable: null, message: "Kontrol edilemedi." });
+      }
+    }, 500);
+
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    };
+  }, [formData.username, currentUser, apiUrl]);
 
   useEffect(() => {
     if (isAuthChecked && !isAuthenticated) {
@@ -147,11 +226,7 @@ export default function SettingsPage() {
   };
 
   if (!isAuthChecked || !currentUser) {
-    return (
-      <div className="container mx-auto px-4 py-20 flex justify-center items-center">
-        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <SettingsSkeleton />;
   }
 
   const profileImageSrc = currentUser?.profileImage ? `${apiUrl}${currentUser.profileImage}` : null;
@@ -270,10 +345,17 @@ export default function SettingsPage() {
 
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-foreground">Kullanıcı Adı</label>
-                    <div className="flex items-center shadow-sm rounded-lg border border-border/60 bg-muted/30 focus-within:ring-1 focus-within:ring-primary/50 focus-within:border-primary/50 transition-all">
+                    <div className={`flex items-center shadow-sm rounded-lg border ${usernameStatus.isAvailable === false ? 'border-red-500/50 focus-within:ring-red-500/50 focus-within:border-red-500/50' : usernameStatus.isAvailable === true && formData.username !== currentUser?.username ? 'border-emerald-500/50 focus-within:ring-emerald-500/50 focus-within:border-emerald-500/50' : 'border-border/60 focus-within:ring-primary/50 focus-within:border-primary/50'} bg-muted/30 focus-within:ring-1 transition-all`}>
                       <span className="px-4 py-2.5 text-muted-foreground font-medium text-sm border-r border-border/40">@</span>
                       <input type="text" name="username" value={formData.username} onChange={handleInputChange} className="w-full px-4 py-2.5 bg-transparent border-none rounded-r-lg focus:outline-none text-foreground text-sm" />
+                      {usernameStatus.isChecking && <Loader2 className="w-4 h-4 mr-3 animate-spin text-muted-foreground" />}
                     </div>
+                    {usernameStatus.isAvailable === false && (
+                      <p className="text-xs text-red-500 mt-1">{usernameStatus.message}</p>
+                    )}
+                    {usernameStatus.isAvailable === true && formData.username !== currentUser?.username && (
+                      <p className="text-xs text-emerald-500 mt-1">Bu kullanıcı adı uygun.</p>
+                    )}
                   </div>
                 </div>
               )}
@@ -388,7 +470,11 @@ export default function SettingsPage() {
               {/* Ortak Kaydet Butonu (Sadece profil sekmesinde) */}
               {activeTab === "profile" && (
                 <div className="pt-8 border-t border-border/40 flex justify-end">
-                  <button type="submit" disabled={isUpdating} className="px-6 py-2.5 text-sm font-medium bg-foreground text-background rounded-lg hover:bg-foreground/90 transition-all flex items-center gap-2 cursor-pointer">
+                  <button 
+                    type="submit" 
+                    disabled={isUpdating || usernameStatus.isAvailable === false} 
+                    className="px-6 py-2.5 text-sm font-medium bg-foreground text-background rounded-lg hover:bg-foreground/90 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
                     {isUpdating ? <><Loader2 className="w-4 h-4 animate-spin" /> Kaydediliyor...</> : 'Değişiklikleri Kaydet'}
                   </button>
                 </div>

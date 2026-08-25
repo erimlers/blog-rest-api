@@ -8,6 +8,7 @@ import { createPost } from "../../../../store/slices/postSlice";
 import { Loader2, ImagePlus, X, PenTool, Hash } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useTheme } from "next-themes";
+import EditorSkeleton from "../../../../components/skeletons/EditorSkeleton";
 import '@uiw/react-md-editor/markdown-editor.css';
 import '@uiw/react-markdown-preview/markdown.css';
 
@@ -108,11 +109,7 @@ export default function CreatePostPage() {
   };
 
   if (!isAuthChecked || !isAuthenticated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <EditorSkeleton />;
   }
 
   return (

@@ -15,6 +15,19 @@ export const fetchPublicProfile = createAsyncThunk(
   }
 );
 
+// Kullanıcı ara
+export const searchUsersThunk = createAsyncThunk(
+  "profile/searchUsers",
+  async (query, { rejectWithValue }) => {
+    try {
+      const response = await api.get(ENDPOINTS.USERS.SEARCH, { params: { q: query } });
+      return response.data || response;
+    } catch (error) {
+      return rejectWithValue(error.message || "Kullanıcılar aranırken bir hata oluştu.");
+    }
+  }
+);
+
 // Kendi profilini güncelle
 export const updateProfile = createAsyncThunk(
   "profile/updateProfile",
@@ -47,6 +60,8 @@ export const toggleFollow = createAsyncThunk(
 
 const initialState = {
   currentViewedProfile: null, // Şuan incelenen profil (public)
+  searchResults: [], // Arama sonuçları
+  isSearching: false,
   isLoading: false,
   isUpdating: false,
   error: null,
@@ -102,6 +117,20 @@ const profileSlice = createSlice({
       })
       .addCase(updateProfile.rejected, (state, action) => {
         state.isUpdating = false;
+        state.error = action.payload;
+      })
+      
+      // searchUsersThunk
+      .addCase(searchUsersThunk.pending, (state) => {
+        state.isSearching = true;
+        state.error = null;
+      })
+      .addCase(searchUsersThunk.fulfilled, (state, action) => {
+        state.isSearching = false;
+        state.searchResults = action.payload;
+      })
+      .addCase(searchUsersThunk.rejected, (state, action) => {
+        state.isSearching = false;
         state.error = action.payload;
       });
   }

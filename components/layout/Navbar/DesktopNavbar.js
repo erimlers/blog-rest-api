@@ -6,8 +6,8 @@ import { fetchNotifications, markAsRead, markAllAsRead, deleteNotification, dele
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { User, LogOut, ChevronDown, Bell, CheckCheck, FileText, Settings, Loader2, PenTool, LayoutDashboard, Check, X } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
-import NavbarSearch from "./NavbarSearch";
+import { useState, useRef, useEffect, Suspense } from "react";
+import NavbarSearch from "./NavbarSearch";  
 
 export default function DesktopNavbar() {
   const { isAuthenticated, user, isAuthChecked } = useSelector((state) => state.auth);
@@ -63,11 +63,9 @@ export default function DesktopNavbar() {
             <span className="text-foreground">&lt;</span>Blog<span className="text-foreground">/&gt;</span>
           </Link>
           
-          {isAuthenticated && (
-            <div className="hidden md:block w-72">
-              <NavbarSearch />
-            </div>
-          )}
+          <div className="hidden md:block w-72">
+            <NavbarSearch />
+          </div>
         </div>
 
         {/* Sağ Alan: Araçlar & Auth */}

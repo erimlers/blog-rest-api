@@ -1,17 +1,31 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchPosts } from "../../../store/slices/postSlice";
+import { setFilters, fetchPosts } from "../../../store/slices/postSlice";
+import { searchUsersThunk } from "../../../store/slices/profileSlice";
 import PostCard from "../../../components/ui/PostCard";
 import FilterBar from "../../../components/ui/FilterBar";
-import { Loader2 } from "lucide-react";
+import PostCardSkeleton from "../../../components/skeletons/PostCardSkeleton";
+import { Loader2, User } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
-export default function PostsPage() {
+function PostsContent() {
   const dispatch = useDispatch();
+  const searchParams = useSearchParams();
+  
   const { posts, isLoading, isInitialized, error, pagination, filters } = useSelector((state) => state.posts);
 
-  // Filtreler değiştiğinde ilk sayfayı yükle
+  // URL'de parametre var ama Redux'ta yoksa eşitle (dışarıdan link ile gelindiğinde)
+  useEffect(() => {
+    const urlQuery = searchParams.get("q");
+    if (urlQuery && urlQuery !== filters.search) {
+      dispatch(setFilters({ search: urlQuery }));
+    }
+  }, [searchParams, dispatch]);
+
+  // Filtreler değiştiğinde sayfayı yükle
   useEffect(() => {
     dispatch(fetchPosts({ page: 1, limit: 10, search: filters.search, sortBy: filters.sortBy }));
   }, [dispatch, filters.search, filters.sortBy]);
@@ -47,11 +61,14 @@ export default function PostsPage() {
             <PostCard key={post._id} post={post} />
           ))}
 
-          {/* Yükleniyor Durumu */}
-          {(!isInitialized || isLoading) && (
-            <div className="col-span-full flex justify-center p-12">
-              <Loader2 className="w-8 h-8 animate-spin text-primary" />
-            </div>
+          {/* Yükleniyor Durumu (İlk yükleme veya arama yaparken list boşsa) */}
+          {(!isInitialized || isLoading) && posts.length === 0 && (
+            <>
+              <PostCardSkeleton />
+              <PostCardSkeleton />
+              <PostCardSkeleton />
+              <PostCardSkeleton />
+            </>
           )}
 
           {/* Boş Durum */}
@@ -78,5 +95,13 @@ export default function PostsPage() {
         
       </div>
     </div>
+  );
+}
+
+export default function PostsPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+      <PostsContent />
+    </Suspense>
   );
 }

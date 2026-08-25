@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { updatePost, fetchPostById } from "../../../../../store/slices/postSlice";
 import { Loader2, ImagePlus, X, ArrowLeft } from "lucide-react";
 import dynamic from "next/dynamic";
+import EditorSkeleton from "../../../../components/skeletons/EditorSkeleton";
 import { useTheme } from "next-themes";
 import '@uiw/react-md-editor/markdown-editor.css';
 import '@uiw/react-markdown-preview/markdown.css';
@@ -157,12 +158,8 @@ export default function EditPostPage() {
     }
   };
 
-  if (!isAuthChecked || !isAuthenticated || isLoadingPost) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-10 h-10 animate-spin text-primary" />
-      </div>
-    );
+  if (isLoadingPost || !isAuthChecked) {
+    return <EditorSkeleton />;
   }
 
   return (

@@ -8,6 +8,7 @@ import { formatRelativeTime } from "../../../../lib/formatTime";
 import { Loader2, Heart, MessageCircle, ArrowLeft, Calendar, User } from "lucide-react";
 import Link from "next/link";
 import CommentSection from "../../../../components/comments/CommentSection";
+import PostDetailSkeleton from "../../../../components/skeletons/PostDetailSkeleton";
 import dynamic from "next/dynamic";
 import { useTheme } from "next-themes";
 import '@uiw/react-md-editor/markdown-editor.css';
@@ -35,12 +36,7 @@ export default function PostDetailPage() {
   }, [id, dispatch]);
 
   if (isCurrentPostLoading || (!currentPost && !error)) {
-    return (
-      <div className="min-h-[calc(100vh-10rem)] flex flex-col items-center justify-center gap-4">
-        <Loader2 className="w-10 h-10 animate-spin text-primary" />
-        <p className="text-muted-foreground font-medium">Yazı yükleniyor...</p>
-      </div>
-    );
+    return <PostDetailSkeleton />;
   }
 
   if (error) {

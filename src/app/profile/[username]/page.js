@@ -6,6 +6,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchPublicProfile, clearProfileState, toggleFollow } from "@store/slices/profileSlice";
 import { fetchPosts } from "@store/slices/postSlice";
 import PostCard from "@components/ui/PostCard";
+import ProfileSkeleton from "@components/skeletons/ProfileSkeleton";
+import PostCardSkeleton from "@components/skeletons/PostCardSkeleton";
 import { User, PenSquare, Calendar, Loader2, Settings, UserPlus, UserMinus, Hash } from "lucide-react";
 import Link from "next/link";
 
@@ -50,11 +52,7 @@ export default function ProfilePage() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace("/api", "") || "http://localhost:8080";
 
   if (isLoading || (!currentViewedProfile && !error)) {
-    return (
-      <div className="container mx-auto px-4 py-20 flex justify-center items-center">
-        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <ProfileSkeleton />;
   }
 
   if (error) {
@@ -172,7 +170,12 @@ export default function ProfilePage() {
         </div>
         
         {postsLoading ? (
-           <div className="py-12 flex justify-center"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>
+           <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-6">
+             <PostCardSkeleton />
+             <PostCardSkeleton />
+             <PostCardSkeleton />
+             <PostCardSkeleton />
+           </div>
         ) : posts.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-6">
             {posts.map(post => (

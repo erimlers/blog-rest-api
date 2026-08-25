@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-export function middleware(request) {
+export function proxy(request) {
   // Sadece URL'in path (yol) kısmını alıyoruz
   const { pathname } = request.nextUrl;
 

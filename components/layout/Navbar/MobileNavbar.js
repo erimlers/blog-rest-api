@@ -97,23 +97,23 @@ export default function MobileNavbar() {
 
           {/* Sağ Alan: Arama İkonu & Profil */}
           <div className="flex items-center gap-3">
+            {/* Her Zaman Görünen Arama İkonu */}
+            <button 
+              onClick={() => {
+                setIsSearchOpen(!isSearchOpen);
+                setIsProfileOpen(false);
+                setIsMenuOpen(false);
+                setIsNotifOpen(false);
+              }}
+              className={`p-2 rounded-full focus:outline-none transition-colors ${isSearchOpen ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              <Search className="w-5 h-5" />
+            </button>
+
             {!isAuthChecked ? (
               <div className="w-8 h-8 rounded-full bg-muted animate-pulse"></div>
             ) : isAuthenticated ? (
               <>
-                {/* Arama İkonu */}
-                <button 
-                  onClick={() => {
-                    setIsSearchOpen(!isSearchOpen);
-                    setIsProfileOpen(false);
-                    setIsMenuOpen(false);
-                    setIsNotifOpen(false);
-                  }}
-                  className={`p-2 rounded-full focus:outline-none transition-colors ${isSearchOpen ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-                >
-                  <Search className="w-5 h-5" />
-                </button>
-                
                 {/* Bildirim İkonu ve Dropdown */}
                 <div className="relative" ref={notifRef}>
                   <button
@@ -292,8 +292,8 @@ export default function MobileNavbar() {
           </div>
         </div>
 
-        {/* Tepeden İnen Arama Çubuğu (Giriş Yapmışken) */}
-        {isSearchOpen && isAuthenticated && (
+        {/* Tepeden İnen Arama Çubuğu */}
+        {isSearchOpen && (
           <div className="absolute top-16 left-0 w-full bg-background border-b border-border shadow-md px-4 py-3 animate-in slide-in-from-top-4 duration-300 z-40">
             <NavbarSearch />
           </div>
