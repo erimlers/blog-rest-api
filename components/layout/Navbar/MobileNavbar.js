@@ -262,14 +262,6 @@ export default function MobileNavbar() {
                         <span>Profilim</span>
                       </Link>
                       <Link 
-                        href="/saved" 
-                        onClick={closeAllMenus}
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted hover:text-primary transition-colors cursor-pointer"
-                      >
-                        <Bookmark className="w-4 h-4" />
-                        <span>Kaydedilenler</span>
-                      </Link>
-                      <Link 
                         href="/settings" 
                         onClick={closeAllMenus}
                         className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted hover:text-primary transition-colors cursor-pointer"
