@@ -8,6 +8,7 @@ import { fetchPosts } from "@store/slices/postSlice";
 import PostCard from "@components/ui/PostCard";
 import ProfileSkeleton from "@components/skeletons/ProfileSkeleton";
 import PostCardSkeleton from "@components/skeletons/PostCardSkeleton";
+import UserListModal from "@components/ui/UserListModal";
 import { User, PenSquare, Calendar, Loader2, Settings, UserPlus, UserMinus, Hash } from "lucide-react";
 import Link from "next/link";
 
@@ -34,6 +35,9 @@ export default function ProfilePage() {
   const { currentViewedProfile, isLoading, error } = useSelector((state) => state.profile);
   const { posts, isLoading: postsLoading } = useSelector((state) => state.posts);
   const { user: currentUser } = useSelector((state) => state.auth);
+
+  // Modal State
+  const [modalType, setModalType] = useState(null); // "followers" | "following" | null
 
   useEffect(() => {
     if (username) {
@@ -109,8 +113,12 @@ export default function ProfilePage() {
                     </span>
                   )}
                   <div className="flex items-center gap-4 text-sm">
-                    <span className="text-foreground"><strong className="font-semibold">{currentViewedProfile?.followers?.length || 0}</strong> <span className="text-muted-foreground">Takipçi</span></span>
-                    <span className="text-foreground"><strong className="font-semibold">{currentViewedProfile?.following?.length || 0}</strong> <span className="text-muted-foreground">Takip</span></span>
+                    <button onClick={() => setModalType("followers")} className="text-foreground hover:text-primary transition-colors cursor-pointer focus:outline-none">
+                      <strong className="font-semibold">{currentViewedProfile?.followers?.length || 0}</strong> <span className="text-muted-foreground hover:text-primary/80">Takipçi</span>
+                    </button>
+                    <button onClick={() => setModalType("following")} className="text-foreground hover:text-primary transition-colors cursor-pointer focus:outline-none">
+                      <strong className="font-semibold">{currentViewedProfile?.following?.length || 0}</strong> <span className="text-muted-foreground hover:text-primary/80">Takip</span>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -190,6 +198,12 @@ export default function ProfilePage() {
         )}
       </div>
 
+      <UserListModal
+        isOpen={modalType !== null}
+        onClose={() => setModalType(null)}
+        title={modalType === "followers" ? "Takipçiler" : "Takip Edilenler"}
+        users={modalType === "followers" ? currentViewedProfile?.followers : currentViewedProfile?.following}
+      />
     </div>
   );
 }
