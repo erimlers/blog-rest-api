@@ -211,9 +211,52 @@ const toggleFollowUser = async (req, res) => {
     return new Response(null, message).success(res);
 }
 
+const checkUsernameAvailability = async (req, res) => {
+    const { username } = req.query;
+    const userId = req.user._id;
+
+    if (!username) {
+        return res.status(400).json({ isAvailable: false, message: "Kullanıcı adı gerekli." });
+    }
+
+    // Geçerli kullanıcının kendi adıysa direkt kullanılabilir
+    const currentUser = await User.findById(userId);
+    if (currentUser && currentUser.username === username) {
+        return res.status(200).json({ isAvailable: true, message: "Mevcut kullanıcı adınız." });
+    }
+
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+        return res.status(200).json({ isAvailable: false, message: "Bu kullanıcı adı zaten kullanılıyor." });
+    }
+
+    return res.status(200).json({ isAvailable: true, message: "Bu kullanıcı adı kullanılabilir." });
+}
+
+const searchUsers = async (req, res) => {
+    const { q } = req.query;
+    if (!q) {
+        return new Response([], "Arama kelimesi boş.").success(res);
+    }
+
+    const users = await User.find({
+        $or: [
+            { username: { $regex: q, $options: "i" } },
+            { name: { $regex: q, $options: "i" } },
+            { lastname: { $regex: q, $options: "i" } }
+        ]
+    })
+    .select("username name lastname profileImage")
+    .limit(10);
+
+    return new Response(users, "Kullanıcılar başarıyla bulundu.").success(res);
+}
+
 module.exports = {
     updateProfile,
     getProfile,
     getPublicProfileByUsername,
-    toggleFollowUser
+    toggleFollowUser,
+    checkUsernameAvailability,
+    searchUsers
 }
