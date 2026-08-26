@@ -28,7 +28,7 @@ export default function UserListModal({ isOpen, onClose, title, users }) {
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200">
       {/* Arkaplan (Hafif Karartma) */}
       <div 
-        className="absolute inset-0 bg-background/95"
+        className="absolute inset-0 bg-background/60 backdrop-blur-md"
         onClick={onClose}
       />
       

@@ -10,8 +10,7 @@ export default function FilterBar() {
   const { filters } = useSelector((state) => state.posts);
   const tabs = [
     { id: "newest", label: "En Yeniler" },
-    { id: "popular", label: "Popüler" },
-    { id: "oldest", label: "En Eskiler" }
+    { id: "popular", label: "Popüler" }
   ];
 
   return (

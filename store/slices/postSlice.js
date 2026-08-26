@@ -39,6 +39,19 @@ export const fetchPosts = createAsyncThunk(
   }
 );
 
+// Tüm etiketleri getir
+export const fetchAllTags = createAsyncThunk(
+  "posts/fetchAllTags",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get(ENDPOINTS.POSTS.TAGS);
+      return response.data || response;
+    } catch (error) {
+      return rejectWithValue(error.message || "Etiketler getirilemedi.");
+    }
+  }
+);
+
 // Post beğenme / Beğeniyi kaldırma
 export const toggleLikePost = createAsyncThunk(
   "posts/toggleLikePost",
@@ -169,6 +182,7 @@ export const deleteComment = createAsyncThunk(
 
 const initialState = {
   posts: [],
+  tags: [], // Popüler etiketler
   currentPost: null, // Detay sayfasında gösterilecek post
   comments: [],      // Detay sayfasındaki postun yorumları
   isCurrentPostLoading: false,
@@ -228,6 +242,11 @@ const postSlice = createSlice({
         state.isLoading = false;
         state.isInitialized = true;
         state.error = action.payload;
+      })
+      
+      // --- fetchAllTags ---
+      .addCase(fetchAllTags.fulfilled, (state, action) => {
+        state.tags = action.payload;
       })
       
       // --- toggleLikePost ---
