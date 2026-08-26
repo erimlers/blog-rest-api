@@ -56,18 +56,18 @@ function PostsContent() {
         
         {/* Etiketler (Tags) Kaydırılabilir Bar */}
         {tags && tags.length > 0 && (
-          <div className="mb-6 flex items-center gap-2 overflow-x-auto custom-scrollbar pb-2">
+          <div className="mb-4 sm:mb-6 flex items-center gap-2 overflow-x-auto pb-2 scroll-smooth" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             {tags.slice(0, 10).map((t) => (
               <button
                 key={t._id}
                 onClick={() => dispatch(setFilters({ tag: filters.tag === t._id ? "" : t._id }))}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium border transition-all shrink-0 ${
+                className={`flex items-center gap-1 sm:gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium border transition-all shrink-0 ${
                   filters.tag === t._id 
                     ? "bg-primary text-primary-foreground border-primary shadow-sm" 
                     : "bg-muted text-foreground border-transparent hover:border-border hover:bg-muted/80"
                 }`}
               >
-                <Hash className="w-3.5 h-3.5 opacity-70" />
+                <Hash className="w-3 h-3 sm:w-3.5 sm:h-3.5 opacity-70" />
                 {t._id}
               </button>
             ))}
@@ -75,7 +75,7 @@ function PostsContent() {
             {tags.length > 0 && (
               <button
                 onClick={() => setIsTagModalOpen(true)}
-                className="px-4 py-2 rounded-full text-sm font-medium bg-background border border-border text-foreground hover:bg-muted transition-colors shrink-0 whitespace-nowrap"
+                className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium bg-background border border-border text-foreground hover:bg-muted transition-colors shrink-0 whitespace-nowrap"
               >
                 + Tümünü Gör
               </button>
