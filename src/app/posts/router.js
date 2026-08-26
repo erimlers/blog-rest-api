@@ -1,11 +1,13 @@
 const router = require("express").Router();
-const {createPost,updatePost,deletePost,likePost,toggleSavePost,getAllPosts,getPostById} = require("./controller");
+const {createPost,updatePost,deletePost,likePost,toggleSavePost,getAllPosts,getPostById,getAllTags} = require("./controller");
 const {tokenCheck} = require("../../middlewares/auth");
 const postValidation = require("../../middlewares/validations/post.validation");
 const upload = require("../../middlewares/upload");
 const commentRouter = require("../comments/router");
 
 router.get("/", getAllPosts);
+
+router.get("/tags", getAllTags);
 
 router.get("/:postId", getPostById);
 

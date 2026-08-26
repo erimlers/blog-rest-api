@@ -166,9 +166,7 @@ const getAllPosts = async(req,res) => {
 
     let sortQuery = { createdAt: -1 }; // Varsayılan: En yeniden en eskiye
     
-    if (req.query.sortBy === "oldest") {
-        sortQuery = { createdAt: 1 }; // En eskiden en yeniye
-    } else if (req.query.sortBy === "newest") {
+    if (req.query.sortBy === "newest") {
         sortQuery = { createdAt: -1 };
     }
 
@@ -215,6 +213,24 @@ const getPostById = async(req,res) => {
     return new Response(post, "Post başarıyla getirildi.").success(res);
 }
 
+const getAllTags = async (req, res) => {
+    // 1. Yazılardaki tüm etiketleri çözümle (unwind)
+    // 2. Her bir etikete göre grupla ve sayısını topla (group)
+    // 3. Kullanım sayısına göre büyükten küçüğe sırala (sort)
+    const tags = await Post.aggregate([
+        { $unwind: "$tags" },
+        { 
+            $group: { 
+                _id: "$tags", 
+                count: { $sum: 1 } 
+            } 
+        },
+        { $sort: { count: -1, _id: 1 } }
+    ]);
+    
+    return new Response(tags, "Etiketler başarıyla getirildi.").success(res);
+}
+
 module.exports = {
     createPost,
     updatePost,
@@ -222,5 +238,6 @@ module.exports = {
     likePost,
     toggleSavePost,
     getAllPosts,
-    getPostById
+    getPostById,
+    getAllTags
 }
