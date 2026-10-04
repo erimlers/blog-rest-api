@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Blog Frontend
 
-## Getting Started
+Bu proje, blog uygulamasının kullanıcı arayüzünü (UI) oluşturur. Modern web standartlarına uygun olarak Next.js ve React mimarisi kullanılarak geliştirilmiştir.
 
-First, run the development server:
+## Özellikler
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Next.js (App Router) ile sunucu tarafı render etme ve optimizasyon
+- Redux Toolkit ile merkezi durum (state) yönetimi
+- Tailwind CSS ile duyarlı (responsive) ve modern arayüz tasarımı
+- Next-Themes ile aydınlık ve karanlık (light/dark) tema desteği
+- React Hook Form ile performanslı form yönetimi
+- UIW React MD Editor ile Markdown formatında zengin içerik oluşturma
+- Socket.io-client ile gerçek zamanlı iletişim ve anlık veri akışı
+- Axios ile API haberleşmesi
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Kullanılan Teknolojiler
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+- Next.js & React
+- Redux Toolkit
+- Tailwind CSS
+- React Hook Form
+- Socket.io Client
+- Axios & Lucide React
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Kurulum ve Çalıştırma
 
-## Learn More
+1. Bağımlılıkları yükleyin:
+   ```bash
+   npm install
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. Gerekli ortam değişkenleri için `.env.local` dosyası oluşturun (Örn: Backend API adresi).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. Geliştirme sunucusunu başlatın:
+   ```bash
+   npm run dev
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Tarayıcınız üzerinden http://localhost:3000 adresiyle projeye erişebilirsiniz.
